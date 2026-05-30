@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🃏 小丑牌</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:    #0a1438;
+  --bg-water:   #1a2858;
+  --bg-glow:    #2d4080;
+  --sb-blue:    #4a6bff;
+  --chips-from: #4dd6ff;
+  --chips-to:   #2196f3;
+  --mult-from:  #ff8844;
+  --mult-to:    #ff3344;
+  --gold:       #ffc857;
+  --money:      #ffb030;
+  --paper-1:    #fff8e1;
+  --paper-2:    #f7e9c4;
+  --card-edge:  #1a0f24;
+  --muted:      rgba(255,255,255,0.38);
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45,64,128,.6), transparent 70%),
+    radial-gradient(ellipse 120% 80% at 30% 70%, rgba(74,107,255,.15), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0 2px, transparent 2px 4px),
+    linear-gradient(135deg, #0a1438 0%, #1a2858 50%, #0a1438 100%);
+  color: #fff;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ─── LEFT SIDEBAR ─── */
+.sidebar {
+  width: min(28vw, 480px);
+  min-width: 280px;
+  background: rgba(10,16,48,0.85);
+  border-right: 1px solid rgba(74,107,255,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 14px;
+  flex-shrink: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74,107,255,.3) transparent;
+}
+
+.sidebar-logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  color: var(--gold);
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  margin-bottom: 14px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.sb-panel {
+  background: rgba(26,40,88,0.6);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(74,107,255,0.15);
+}
+
+/* Blind panel */
+.blind-panel {
+  text-align: center;
+}
+.blind-icon { font-size: 32px; line-height: 1; margin-bottom: 6px; }
+.blind-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  margin-bottom: 4px;
+}
+.blind-target {
+  font-family: 'VT323', monospace;
+  font-size: 28px;
+  color: var(--gold);
+  line-height: 1;
+}
+.blind-reward {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 4px;
+}
+
+/* Round score */
+.round-score-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.round-score-val {
+  font-family: 'VT323', monospace;
+  font-size: 42px;
+  color: #ff4d4d;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.progress-bar-wrap {
+  background: rgba(0,0,0,0.4);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #4a6bff, #4dd6ff);
+  transition: width 0.4s ease;
+}
+
+/* HAND scoring block */
+.hand-type-name {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+.hand-type-name.active { color: var(--sb-blue); }
+.chips-mult-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+.chips-block, .mult-block {
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 72px;
+  text-align: center;
+}
+.chips-block {
+  background: linear-gradient(135deg, var(--chips-from), var(--chips-to));
+}
+.mult-block {
+  background: linear-gradient(135deg, var(--mult-from), var(--mult-to));
+}
+.cm-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 28px;
+  color: #000;
+  line-height: 1;
+  display: block;
+}
+.cm-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: rgba(0,0,0,0.6);
+  display: block;
+  margin-top: 2px;
+}
+.times-sym {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #fff;
+}
+
+/* Hands/Discards */
+.hd-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.hd-block {
+  text-align: center;
+  flex: 1;
+}
+.hd-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 2px;
+}
+.hd-num-hands {
+  font-family: 'VT323', monospace;
+  font-size: 34px;
+  color: #4ade80;
+  line-height: 1;
+}
+.hd-num-discards {
+  font-family: 'VT323', monospace;
+  font-size: 34px;
+  color: #f87171;
+  line-height: 1;
+}
+
+/* Gold coins */
+.gold-panel {
+  background: #0a0e1a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.gold-sign {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--money);
+}
+.gold-amount {
+  font-family: 'VT323', monospace;
+  font-size: 44px;
+  color: var(--gold);
+  line-height: 1;
+}
+
+/* Ante/Round info */
+.ante-info {
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.ante-num { color: var(--gold); font-weight: 700; }
+.round-num { color: var(--sb-blue); font-weight: 700; }
+
+/* Restart button */
+.px-btn {
+  min-height: 52px;
+  padding: 14px 26px;
+  border-radius: 12px;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+  border: 2px solid rgba(0,0,0,.35);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+}
+.px-btn:hover:not([disabled]) { transform: translateY(-2px); filter: brightness(1.1) saturate(1.15); }
+.px-btn:active:not([disabled]) { transform: translateY(2px); filter: brightness(0.92); }
+.px-btn[disabled] { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.3); }
+
+.btn-red {
+  background: linear-gradient(180deg, #fb7185, #ef4444, #dc2626);
+  box-shadow: 0 5px 0 #991b1b, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+  width: 100%;
+}
+.btn-green {
+  background: linear-gradient(180deg, #34d399, #10b981, #059669);
+  box-shadow: 0 5px 0 #047857, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+}
+.btn-ghost {
+  background: linear-gradient(180deg, rgba(99,102,241,.28), rgba(67,56,202,.20));
+  box-shadow: 0 3px 0 rgba(67,56,202,.4), inset 0 1px 0 rgba(255,255,255,.3);
+  color: #a5b4fc;
+  font-size: 14px;
+  min-height: 44px;
+}
+.btn-purple {
+  background: linear-gradient(180deg, #c084fc, #a855f7, #7e22ce);
+  box-shadow: 0 5px 0 #581c87, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+}
+.btn-shop-skip {
+  background: linear-gradient(180deg, #818cf8, #6366f1, #4338ca);
+  box-shadow: 0 5px 0 #312e81, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+  min-width: 160px;
+}
+.btn-orange {
+  background: linear-gradient(180deg, #fbbf24, #f59e0b, #d97706);
+  box-shadow: 0 4px 0 #92400e, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #000;
+}
+
+/* ─── RIGHT MAIN AREA ─── */
+.main-area {
+  flex: 1;
+  display: grid;
+  grid-template-rows: 230px 1fr 340px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Joker zone - row 1 */
+.joker-zone {
+  background: rgba(15,23,42,.6);
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.joker-zone-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--gold);
+  text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.joker-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Joker card */
+.joker-card {
+  width: 140px;
+  height: 200px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+  border: 2px solid var(--card-edge);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  position: relative;
+  cursor: default;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.joker-card.rarity-common { box-shadow: inset 0 0 0 3px #6cb4d3; }
+.joker-card.rarity-rare   { box-shadow: inset 0 0 0 3px #e34b6f; }
+.joker-card.rarity-legend { box-shadow: inset 0 0 0 3px #b577ff; }
+
+.joker-art { font-size: 48px; line-height: 1; margin-bottom: 6px; }
+.joker-name {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a0f24;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.joker-desc {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 10px;
+  color: #555;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Joker empty slot */
+.joker-slot-empty {
+  width: 140px;
+  height: 200px;
+  flex-shrink: 0;
+  border: 2px dashed rgba(79,70,229,.4);
+  border-radius: 10px;
+  background: rgba(79,70,229,.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.joker-slot-plus { font-size: 24px; color: rgba(255,255,255,0.3); }
+.joker-slot-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* Play zone - row 2 */
+.play-zone {
+  background: rgba(5,8,24,.5);
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.play-zone-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.play-zone-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+.hand-type-float {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sb-blue);
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.played-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.played-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Deck pile */
+.deck-pile {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 90px;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.deck-stack {
+  position: relative;
+  width: 90px;
+  height: 130px;
+}
+.deck-img {
+  width: 90px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.7), -3px 3px 0 rgba(0,0,0,0.4), -6px 6px 0 rgba(0,0,0,0.2);
+  display: block;
+}
+.deck-count {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--gold);
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* Hand zone - row 3 */
+.hand-zone {
+  padding: 20px 20px 12px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.hand-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.hand-selected-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.hand-cards-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  height: 155px;
+  align-items: flex-start;
+}
+.action-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  padding-right: 130px;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+.action-row .px-btn {
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Playing card */
+.card {
+  width: 100px;
+  height: 145px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+  border: 2px solid var(--card-edge);
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card:hover { transform: translateY(-6px); }
+.card.selected {
+  transform: translateY(-28px);
+  box-shadow: 0 6px 16px rgba(74,107,255,.5), 0 3px 8px rgba(0,0,0,.5);
+}
+.card.selected:hover { transform: translateY(-30px); }
+
+.card-corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  font-size: 12px;
+  font-weight: 700;
+}
+.card-corner-tl { top: 4px; left: 6px; }
+.card-corner-br { bottom: 4px; right: 6px; transform: rotate(180deg); }
+.card-center { font-size: 36px; line-height: 1; }
+.suit-red { color: #e63946; }
+.suit-black { color: #1a0f24; }
+
+/* Played card (smaller, in play zone) */
+.played-card {
+  width: 80px;
+  height: 115px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+  border: 2px solid var(--card-edge);
+  border-radius: 7px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.played-card.highlighted {
+  transform: translateY(-18px);
+  box-shadow: 0 6px 16px rgba(77,214,255,.7), 0 2px 6px rgba(0,0,0,.4);
+}
+.played-card .card-corner { font-size: 10px; }
+.played-card .card-center { font-size: 28px; }
+
+/* Score formula preview */
+.formula-preview {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ─── SHOP ─── */
+.shop-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 30px;
+  gap: 24px;
+}
+.shop-title {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold);
+}
+.shop-subtitle {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 15px;
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+}
+.shop-jokers-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.shop-joker-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.shop-joker-card {
+  width: 140px;
+  height: 200px;
+  background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+  border: 2px solid var(--card-edge);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  position: relative;
+  transition: opacity 0.2s;
+}
+.shop-joker-card.sold { opacity: 0.4; }
+.shop-joker-card.rarity-common { box-shadow: inset 0 0 0 3px #6cb4d3; }
+.shop-joker-card.rarity-rare   { box-shadow: inset 0 0 0 3px #e34b6f; }
+.shop-joker-card.rarity-legend { box-shadow: inset 0 0 0 3px #b577ff; }
+.shop-buy-btn {
+  width: 140px;
+  min-height: 44px;
+  border-radius: 8px;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  border: 2px solid rgba(0,0,0,.35);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+}
+.shop-buy-btn:hover:not([disabled]) { transform: translateY(-2px); filter: brightness(1.1); }
+.shop-buy-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.shop-buy-active {
+  background: linear-gradient(180deg, #34d399, #10b981, #059669);
+  box-shadow: 0 4px 0 #047857, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+}
+.shop-buy-disabled {
+  background: rgba(80,80,80,0.5);
+  color: rgba(255,255,255,0.4);
+  box-shadow: none;
+}
+.shop-skip-row {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* AI highlight in shop */
+.shop-joker-card.ai-suggest {
+  box-shadow: inset 0 0 0 3px #ffc857, 0 0 16px rgba(255,200,87,0.5);
+}
+
+/* ─── END SCREEN ─── */
+.end-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 20px;
+}
+.end-title {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center;
+}
+.end-gold {
+  font-family: 'VT323', monospace;
+  font-size: 40px;
+  color: var(--gold);
+}
+.end-jokers-label {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 8px;
+}
+.end-jokers-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ─── SETTINGS MODAL ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-card {
+  width: min(600px, 90vw);
+  background: var(--bg-water);
+  border: 2px solid var(--sb-blue);
+  border-radius: 14px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.modal-title {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.modal-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modal-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.modal-slider {
+  width: 100%;
+  accent-color: var(--sb-blue);
+  height: 6px;
+  cursor: pointer;
+}
+.modal-radio-row {
+  display: flex;
+  gap: 16px;
+}
+.modal-radio-row label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.modal-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.toggle-switch {
+  width: 44px;
+  height: 24px;
+  background: rgba(80,80,80,0.6);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--sb-blue); }
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.toggle-switch.on .toggle-knob { transform: translateX(20px); }
+.modal-close-btn {
+  align-self: flex-end;
+  background: linear-gradient(180deg, #fb7185, #ef4444, #dc2626);
+  box-shadow: 0 3px 0 #991b1b, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+  border: 2px solid rgba(0,0,0,.35);
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.modal-close-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+/* Settings gear button */
+.settings-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid rgba(0,0,0,.35);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: linear-gradient(180deg, #fbbf24, #f59e0b, #d97706);
+  box-shadow: 0 4px 0 #92400e, inset 0 1px 0 rgba(255,255,255,.3);
+}
+.settings-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.settings-btn:active { transform: translateY(2px); filter: brightness(0.92); }
+
+/* Score popup */
+.score-popup {
+  position: fixed;
+  z-index: 300;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 22px;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255,200,87,0.8), 1px 1px 0 #000;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Floating chip/mult text */
+.fly-text {
+  position: fixed;
+  z-index: 301;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.fly-text.chip-fly { color: #4dd6ff; text-shadow: 0 0 8px rgba(77,214,255,0.8); }
+.fly-text.mult-fly { color: #ff8844; text-shadow: 0 0 8px rgba(255,136,68,0.8); }
+
+/* AI pulsing */
+@keyframes ai-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.ai-thinking {
+  animation: ai-pulse 1s ease-in-out infinite;
+}
+
+/* Score number jump */
+@keyframes num-jump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+.num-jump { animation: num-jump 0.35s ease; }
+
+/* Scrollbar for sidebar */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(74,107,255,.3); border-radius: 2px; }
+
+/* Rarity label in shop */
+.rarity-label {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.rarity-common-text { color: #6cb4d3; }
+.rarity-rare-text   { color: #e34b6f; }
+.rarity-legend-text { color: #b577ff; }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- SETTINGS MODAL -->
+  <div class="modal-overlay" v-if="showSettings" @click.self="showSettings=false">
+    <div class="modal-card">
+      <div class="modal-title">⚙️ 游戏设置</div>
+      <div class="modal-row">
+        <div class="modal-label">BGM 音量：{{ settings.bgmVolume }}</div>
+        <input class="modal-slider" type="range" min="0" max="100" v-model.number="settings.bgmVolume" @change="saveSettings">
+      </div>
+      <div class="modal-row">
+        <div class="modal-label">SFX 音量：{{ settings.sfxVolume }}</div>
+        <input class="modal-slider" type="range" min="0" max="100" v-model.number="settings.sfxVolume" @change="saveSettings">
+      </div>
+      <div class="modal-row">
+        <div class="modal-label">动画速度</div>
+        <div class="modal-radio-row">
+          <label><input type="radio" v-model="settings.animSpeed" value="slow" @change="saveSettings"> 慢</label>
+          <label><input type="radio" v-model="settings.animSpeed" value="normal" @change="saveSettings"> 普通</label>
+          <label><input type="radio" v-model="settings.animSpeed" value="fast" @change="saveSettings"> 快</label>
+        </div>
+      </div>
+      <div class="modal-row">
+        <div class="modal-label">显示出牌公式预览</div>
+        <div class="modal-toggle-row">
+          <div class="toggle-switch" :class="{on: settings.showFormula}" @click="settings.showFormula=!settings.showFormula; saveSettings()">
+            <div class="toggle-knob"></div>
+          </div>
+          <span style="font-size:13px;color:rgba(255,255,255,.6);">{{ settings.showFormula ? '开启' : '关闭' }}</span>
+        </div>
+      </div>
+      <button class="modal-close-btn" @click="showSettings=false">关闭</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS GEAR BUTTON -->
+  <button class="settings-btn" @click="showSettings=true" title="设置">⚙️</button>
+
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <!-- Logo -->
+    <div class="sidebar-logo">🃏 小丑牌</div>
+
+    <!-- Blind Panel -->
+    <div class="sb-panel blind-panel">
+      <div class="blind-icon">{{ currentBlind.icon }}</div>
+      <div class="blind-name">{{ currentBlind.name }}</div>
+      <div class="blind-target">目标 {{ currentBlind.target }}</div>
+      <div class="blind-reward">奖励 ${{ currentBlind.reward + handsLeft }}</div>
+    </div>
+
+    <!-- Round Score -->
+    <div class="sb-panel">
+      <div class="round-score-label">Round Score</div>
+      <div class="round-score-val" id="round-score-display">{{ displayScore }}</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" :style="{ width: Math.min(100, (blindScore/currentBlind.target)*100) + '%' }"></div>
+      </div>
+    </div>
+
+    <!-- HAND scoring block -->
+    <div class="sb-panel">
+      <div class="hand-type-name" :class="{ active: selectedHandType !== null }">
+        {{ selectedHandType ? selectedHandType.name : '— 选牌出牌 —' }}
+      </div>
+      <div class="chips-mult-row">
+        <div class="chips-block">
+          <span class="cm-num" id="sb-chips">{{ displayChips }}</span>
+          <span class="cm-label">CHIPS</span>
+        </div>
+        <span class="times-sym">×</span>
+        <div class="mult-block">
+          <span class="cm-num" id="sb-mult">{{ displayMult }}</span>
+          <span class="cm-label">MULT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hands / Discards -->
+    <div class="sb-panel">
+      <div class="hd-row">
+        <div class="hd-block">
+          <span class="hd-label">手数</span>
+          <span class="hd-num-hands" id="sb-hands">{{ handsLeft }}</span>
+        </div>
+        <div class="hd-block">
+          <span class="hd-label">弃牌</span>
+          <span class="hd-num-discards" id="sb-discards">{{ discardsLeft }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gold coins -->
+    <div class="gold-panel">
+      <span class="gold-sign">$</span>
+      <span class="gold-amount" id="sb-gold">{{ money }}</span>
+    </div>
+
+    <!-- Ante / Round info -->
+    <div class="ante-info">
+      <span class="ante-num">Ante {{ currentBlindIndex + 1 }}/3</span>
+      &nbsp;·&nbsp;
+      <span class="round-num">Round {{ currentBlindIndex + 1 }}</span>
+    </div>
+
+    <!-- Restart button -->
+    <button class="px-btn btn-red" style="min-height:44px;font-size:14px;" @click="restartGame">重新开始</button>
+  </div>
+
+  <!-- RIGHT MAIN AREA: playing -->
+  <div class="main-area" v-if="gameState === 'playing'">
+
+    <!-- Row 1: Joker Zone -->
+    <div class="joker-zone">
+      <div class="joker-zone-title">JOKERS · {{ ownedJokers.length }}/5</div>
+      <div class="joker-row" id="joker-row">
+        <template v-for="(joker, ji) in ownedJokers" :key="joker.id + ji">
+          <div
+            class="joker-card"
+            :class="rarityClass(joker.rarity)"
+            :id="'joker-' + ji"
+          >
+            <div class="joker-art">{{ joker.art }}</div>
+            <div class="joker-name">{{ joker.name }}</div>
+            <div class="joker-desc">{{ joker.desc }}</div>
+          </div>
+        </template>
+        <template v-for="n in (5 - ownedJokers.length)" :key="'empty-'+n">
+          <div class="joker-slot-empty">
+            <span class="joker-slot-plus">+</span>
+            <span class="joker-slot-label">空槽</span>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Row 2: Play Zone -->
+    <div class="play-zone" id="play-zone">
+      <div class="play-zone-header">
+        <span class="play-zone-label">出牌区</span>
+        <span class="hand-type-float" v-if="playedHandType">{{ playedHandType.name }}</span>
+      </div>
+      <div class="played-area" id="played-area">
+        <template v-for="(card, ci) in playedCards" :key="card.id">
+          <div
+            class="played-card"
+            :class="[suitColorClass(card.suit), { highlighted: card.highlighted }]"
+            :id="'played-card-' + ci"
+          >
+            <div class="card-corner card-corner-tl" :class="suitColorClass(card.suit)">
+              <span>{{ card.rank }}</span>
+              <span>{{ card.suit }}</span>
+            </div>
+            <div class="card-center">{{ suitEmoji(card.suit) }}</div>
+            <div class="card-corner card-corner-br" :class="suitColorClass(card.suit)">
+              <span>{{ card.rank }}</span>
+              <span>{{ card.suit }}</span>
+            </div>
+          </div>
+        </template>
+        <div class="played-empty" v-if="playedCards.length === 0">选择手牌组成牌型（1-5 张）</div>
+      </div>
+
+      <!-- Formula preview -->
+      <div class="formula-preview" v-if="settings.showFormula && selectedHandType && selectedCards.length > 0">
+        {{ selectedHandType.name }} · {{ previewChips }} CHIPS × {{ previewMult }} MULT = {{ previewChips * previewMult }}
+      </div>
+
+      <!-- Deck pile -->
+      <div class="deck-pile" id="deck-pile">
+        <div class="deck-stack">
+          <img class="deck-img" src="小丑牌.png" alt="牌堆" />
+        </div>
+        <div class="deck-count">{{ deckRemaining }}/52</div>
+      </div>
+    </div>
+
+    <!-- Row 3: Hand Zone -->
+    <div class="hand-zone">
+      <div class="hand-header">
+        <span class="hand-label">手牌</span>
+        <span class="hand-selected-count">已选 {{ selectedCards.length }} / 5 张</span>
+      </div>
+      <div class="hand-cards-row" id="hand-cards-row">
+        <template v-for="(card, ci) in handCards" :key="card.id">
+          <div
+            class="card"
+            :class="{ selected: selectedCards.includes(card.id) }"
+            :id="'hand-card-' + ci"
+            :style="{ opacity: dealingCardIds.includes(card.id) ? 0 : 1, transition: 'opacity 0.15s' }"
+            @click="toggleCardSelect(card)"
+          >
+            <div class="card-corner card-corner-tl" :class="suitColorClass(card.suit)">
+              <span>{{ card.rank }}</span>
+              <span>{{ card.suit }}</span>
+            </div>
+            <div class="card-center" :class="suitColorClass(card.suit)">{{ suitEmoji(card.suit) }}</div>
+            <div class="card-corner card-corner-br" :class="suitColorClass(card.suit)">
+              <span>{{ card.rank }}</span>
+              <span>{{ card.suit }}</span>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="action-row">
+        <button
+          class="px-btn btn-green"
+          style="font-size:16px;"
+          :disabled="selectedCards.length === 0 || isAnimating"
+          @click="handlePlay"
+        >出牌 ({{ selectedCards.length }})</button>
+        <button
+          class="px-btn btn-red"
+          style="font-size:16px;"
+          :disabled="selectedCards.length === 0 || discardsLeft <= 0 || isAnimating"
+          @click="handleDiscard"
+        >弃牌 ({{ discardsLeft }})</button>
+        <button class="px-btn btn-ghost" style="font-size:14px;" @click="sortByRank" :disabled="isAnimating">按点排序</button>
+        <button class="px-btn btn-ghost" style="font-size:14px;" @click="sortBySuit" :disabled="isAnimating">按花排序</button>
+        <button
+          class="px-btn btn-purple"
+          :class="{ 'ai-thinking': aiThinking }"
+          style="font-size:16px;"
+          :disabled="isAnimating || aiThinking"
+          @click="handleAIPlay"
+        >{{ aiThinking ? '🤔 AI 思考中…' : '🤖 AI出牌' }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT MAIN AREA: shop -->
+  <div class="shop-area" v-else-if="gameState === 'shop'">
+    <div class="shop-title">商店</div>
+    <div class="shop-subtitle">
+      通关奖励到账！金币 ${{ money }} · Joker 槽 {{ ownedJokers.length }}/5
+    </div>
+    <div class="shop-jokers-row">
+      <div class="shop-joker-item" v-for="(joker, si) in shopJokers" :key="joker.id + '-shop-' + si">
+        <div
+          class="shop-joker-card"
+          :class="[rarityClass(joker.rarity), { sold: joker.sold, 'ai-suggest': aiShopSuggest === si }]"
+        >
+          <div class="joker-art">{{ joker.art }}</div>
+          <div class="joker-name">{{ joker.name }}</div>
+          <div class="joker-desc">{{ joker.desc }}</div>
+          <div style="margin-top:6px;">
+            <span class="rarity-label" :class="rarityTextClass(joker.rarity)">{{ joker.rarity }} · ${{ joker.price }}</span>
+          </div>
+        </div>
+        <button
+          class="shop-buy-btn"
+          :class="getBuyBtnClass(joker)"
+          :disabled="joker.sold || ownedJokers.length >= 5 || money < joker.price"
+          @click="buyJoker(joker, si)"
+        >{{ getShopBtnText(joker) }}</button>
+      </div>
+    </div>
+    <div class="shop-skip-row">
+      <button class="px-btn btn-shop-skip" @click="skipShop">跳过 →</button>
+    </div>
+  </div>
+
+  <!-- RIGHT MAIN AREA: won -->
+  <div class="end-area" v-else-if="gameState === 'won'">
+    <div class="end-title" style="color: #ffc857;">🎉 通关全部</div>
+    <div class="end-gold">最终金币：${{ money }}</div>
+    <div class="end-jokers-label">持有的 Joker</div>
+    <div class="end-jokers-row">
+      <div class="joker-card" :class="rarityClass(j.rarity)" v-for="j in ownedJokers" :key="j.id" style="width:120px;height:172px;">
+        <div class="joker-art" style="font-size:36px;">{{ j.art }}</div>
+        <div class="joker-name">{{ j.name }}</div>
+        <div class="joker-desc">{{ j.desc }}</div>
+      </div>
+    </div>
+    <button class="px-btn btn-red" style="min-width:200px;" @click="restartGame">重新开始</button>
+  </div>
+
+  <!-- RIGHT MAIN AREA: lost -->
+  <div class="end-area" v-else-if="gameState === 'lost'">
+    <div class="end-title" style="color: #ef4444;">💀 失败</div>
+    <div class="end-gold">最终金币：${{ money }}</div>
+    <div class="end-jokers-label">持有的 Joker</div>
+    <div class="end-jokers-row">
+      <div class="joker-card" :class="rarityClass(j.rarity)" v-for="j in ownedJokers" :key="j.id" style="width:120px;height:172px;">
+        <div class="joker-art" style="font-size:36px;">{{ j.art }}</div>
+        <div class="joker-name">{{ j.name }}</div>
+        <div class="joker-desc">{{ j.desc }}</div>
+      </div>
+      <div v-if="ownedJokers.length === 0" style="color:rgba(255,255,255,.4);font-size:14px;">无</div>
+    </div>
+    <button class="px-btn btn-red" style="min-width:200px;" @click="restartGame">重新开始</button>
+  </div>
+</div>
+
+<script>
+const { createApp, reactive, computed, watch, onMounted, nextTick, ref } = Vue;
+
+// ─── CONSTANTS ───────────────────────────────────────────────
+const SUITS = ['♠','♥','♦','♣'];
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+function rankValue(rank) {
+  if (rank === 'A') return 11;
+  if (['J','Q','K'].includes(rank)) return 10;
+  return parseInt(rank);
+}
+
+function suitColor(suit) {
+  return ['♥','♦'].includes(suit) ? 'red' : 'black';
+}
+
+function suitEmojiMap(suit) {
+  const map = { '♠':'♠', '♥':'♥', '♦':'♦', '♣':'♣' };
+  return map[suit] || suit;
+}
+
+const BLINDS = [
+  { name:'小盲注', target:300, icon:'🔵', reward:5 },
+  { name:'中盲注', target:500, icon:'🟡', reward:6 },
+  { name:'大盲注', target:800, icon:'🔴', reward:8 },
+];
+
+// ─── JOKER POOL ──────────────────────────────────────────────
+const JOKER_POOL = [
+  { id:'jester',    name:'小丑',      rarity:'普通', price:3, art:'🃏', desc:'每手 +4 倍率',
+    effect: (ctx) => { ctx.mult += 4; } },
+  { id:'scholar',   name:'学者',      rarity:'普通', price:3, art:'📖', desc:'打出的牌每张A：+4倍率',
+    effect: (ctx) => { ctx.playedCards.forEach(c=>{ if(c.rank==='A') ctx.mult+=4; }); } },
+  { id:'heart',     name:'红心收藏家',rarity:'稀有', price:5, art:'❤️', desc:'含♥时倍率×4',
+    effect: (ctx) => { if(ctx.playedCards.some(c=>c.suit==='♥')) ctx.mult*=4; } },
+  { id:'club',      name:'梅花爱好者',rarity:'稀有', price:5, art:'♣',  desc:'含♣时倍率×4',
+    effect: (ctx) => { if(ctx.playedCards.some(c=>c.suit==='♣')) ctx.mult*=4; } },
+  { id:'royal',     name:'皇家头牌',  rarity:'稀有', price:5, art:'👑', desc:'含J/Q/K时倍率×10',
+    effect: (ctx) => { if(ctx.playedCards.some(c=>['J','Q','K'].includes(c.rank))) ctx.mult*=10; } },
+  { id:'sf_master', name:'同花顺大师',rarity:'传说', price:8, art:'🔥', desc:'同花顺时+50倍率',
+    effect: (ctx) => { if(ctx.handName==='同花顺') ctx.mult+=50; } },
+];
+
+// ─── HAND TYPE DETECTION ─────────────────────────────────────
+function getCounts(cards) {
+  const c = {};
+  cards.forEach(card => { c[card.rank] = (c[card.rank]||0)+1; });
+  return Object.values(c).sort((a,b)=>b-a);
+}
+
+function isFlush(cards) {
+  if (cards.length < 5) return false;
+  return cards.every(c => c.suit === cards[0].suit);
+}
+
+function isStraight(cards) {
+  if (cards.length < 5) return false;
+  const vals = [...new Set(cards.map(c => {
+    const idx = RANKS.indexOf(c.rank);
+    return idx;
+  }))].sort((a,b)=>a-b);
+  if (vals.length < 5) return false;
+  // Normal straight
+  if (vals[4]-vals[0] === 4) return true;
+  // A-2-3-4-5 (A=12, but 2=1,3=2,4=3,5=4)
+  if (vals[0]===0 && vals[1]===1 && vals[2]===2 && vals[3]===3 && vals[4]===12) return true;
+  return false;
+}
+
+function isStraightFlush(cards) {
+  return isFlush(cards) && isStraight(cards);
+}
+
+function hasFourOfAKind(cards) {
+  return getCounts(cards)[0] >= 4;
+}
+
+function isFullHouse(cards) {
+  const c = getCounts(cards);
+  return c[0] >= 3 && c[1] >= 2;
+}
+
+function hasThreeOfAKind(cards) {
+  return getCounts(cards)[0] >= 3;
+}
+
+function hasTwoPair(cards) {
+  const c = getCounts(cards);
+  return c[0] >= 2 && c[1] >= 2;
+}
+
+function hasPair(cards) {
+  return getCounts(cards)[0] >= 2;
+}
+
+const HAND_TYPES = [
+  { name:'同花顺', chips:100, mult:8, test: cards => isStraightFlush(cards) },
+  { name:'四条',   chips:60,  mult:7, test: cards => hasFourOfAKind(cards) },
+  { name:'葫芦',   chips:40,  mult:4, test: cards => isFullHouse(cards) },
+  { name:'同花',   chips:35,  mult:4, test: cards => isFlush(cards) },
+  { name:'顺子',   chips:30,  mult:4, test: cards => isStraight(cards) },
+  { name:'三条',   chips:30,  mult:3, test: cards => hasThreeOfAKind(cards) },
+  { name:'两对',   chips:20,  mult:2, test: cards => hasTwoPair(cards) },
+  { name:'对子',   chips:10,  mult:2, test: cards => hasPair(cards) },
+  { name:'高牌',   chips:5,   mult:1, test: () => true },
+];
+
+function detectHandType(cards) {
+  for (const ht of HAND_TYPES) {
+    if (ht.test(cards)) return ht;
+  }
+  return HAND_TYPES[HAND_TYPES.length-1];
+}
+
+function calcScore(handType, cards, ownedJokers) {
+  let chips = handType.chips + cards.reduce((sum, c) => sum + rankValue(c.rank), 0);
+  let mult = handType.mult;
+  const ctx = { chips, mult, playedCards: cards, handName: handType.name };
+  ownedJokers.forEach(j => j.effect(ctx));
+  return { chips: ctx.chips, mult: ctx.mult, score: ctx.chips * ctx.mult };
+}
+
+// ─── DECK ────────────────────────────────────────────────────
+function buildDeck() {
+  const deck = [];
+  let id = 0;
+  SUITS.forEach(suit => {
+    RANKS.forEach(rank => {
+      deck.push({ id: id++, suit, rank });
+    });
+  });
+  return deck;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// ─── SPEED MULTIPLIER ────────────────────────────────────────
+const SPEED_MAP = { slow: 1.5, normal: 1, fast: 0.6 };
+
+// ─── APP ─────────────────────────────────────────────────────
+createApp({
+  setup() {
+    // Settings
+    const settings = reactive({
+      bgmVolume: 50,
+      sfxVolume: 70,
+      animSpeed: 'normal',
+      showFormula: true,
+    });
+
+    function loadSettings() {
+      try {
+        const s = JSON.parse(localStorage.getItem('balatro.settings') || '{}');
+        Object.assign(settings, s);
+      } catch(e) {}
+    }
+
+    function saveSettings() {
+      localStorage.setItem('balatro.settings', JSON.stringify({ ...settings }));
+    }
+
+    loadSettings();
+
+    const showSettings = ref(false);
+
+    // Game state
+    const gameState = ref('playing'); // 'playing'|'shop'|'won'|'lost'
+    const currentBlindIndex = ref(0);
+    const blindScore = ref(0);
+    const displayScore = ref(0);
+    const money = ref(0);
+    const handsLeft = ref(4);
+    const discardsLeft = ref(3);
+    const ownedJokers = reactive([]);
+    const handCards = reactive([]);
+    const selectedCards = reactive([]);
+    const playedCards = reactive([]);
+    const isAnimating = ref(false);
+    const aiThinking = ref(false);
+    const dealingCardIds = ref([]);  // cards hidden during deal animation
+
+    // Shop
+    const shopJokers = reactive([]);
+    const aiShopSuggest = ref(-1);
+
+    // Score display
+    const displayChips = ref(0);
+    const displayMult = ref(0);
+    const playedHandType = ref(null);
+
+    const currentBlind = computed(() => BLINDS[currentBlindIndex.value]);
+
+    // Deck management
+    let deck = [];
+    let deckIndex = 0;
+
+    function initDeck() {
+      deck = shuffle(buildDeck());
+      deckIndex = 0;
+    }
+
+    const deckRemaining = computed(() => Math.max(0, 52 - deckIndex));
+
+    // Selected hand type for sidebar preview
+    const selectedHandType = computed(() => {
+      if (selectedCards.length === 0) return null;
+      const cards = handCards.filter(c => selectedCards.includes(c.id));
+      return detectHandType(cards);
+    });
+
+    // Preview chips/mult
+    const previewChips = computed(() => {
+      if (!selectedHandType.value) return 0;
+      const cards = handCards.filter(c => selectedCards.includes(c.id));
+      return selectedHandType.value.chips + cards.reduce((s,c)=>s+rankValue(c.rank),0);
+    });
+    const previewMult = computed(() => {
+      if (!selectedHandType.value) return 0;
+      return selectedHandType.value.mult;
+    });
+
+    function speedMult() {
+      return SPEED_MAP[settings.animSpeed] || 1;
+    }
+
+    // ─── DEAL CARDS ──────────────────────────────────────────
+    async function dealCards(count) {
+      const newCards = [];
+      for (let i = 0; i < count; i++) {
+        if (deckIndex >= 52) {
+          deck = shuffle(buildDeck());
+          deckIndex = 0;
+        }
+        newCards.push({ ...deck[deckIndex++], highlighted: false });
+      }
+
+      // Add cards to hand as invisible (hidden until animation lands)
+      const startIdx = handCards.length;
+      newCards.forEach(c => {
+        handCards.push(c);
+        dealingCardIds.value.push(c.id);
+      });
+
+      await nextTick();
+
+      // Animate: fly from deck pile to each card slot
+      const deckEl = document.getElementById('deck-pile');
+      if (!deckEl) { newCards.forEach(c => { const idx = dealingCardIds.value.indexOf(c.id); if (idx>=0) dealingCardIds.value.splice(idx,1); }); return; }
+      const deckRect = deckEl.getBoundingClientRect();
+
+      const sm = speedMult();
+      const promises = [];
+
+      newCards.forEach((card, i) => {
+        const cardEl = document.getElementById('hand-card-' + (startIdx + i));
+        if (!cardEl) { const idx = dealingCardIds.value.indexOf(card.id); if (idx>=0) dealingCardIds.value.splice(idx,1); return; }
+        const cardRect = cardEl.getBoundingClientRect();
+
+        // Clone uses 小丑牌.png as card back
+        const clone = document.createElement('img');
+        clone.src = '小丑牌.png';
+        clone.style.cssText = `
+          position: fixed;
+          width: ${cardRect.width}px;
+          height: ${cardRect.height}px;
+          border-radius: 8px;
+          object-fit: cover;
+          border: 2px solid rgba(255,255,255,0.15);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+          z-index: 500;
+          pointer-events: none;
+          top: ${deckRect.top + deckRect.height/2 - cardRect.height/2}px;
+          left: ${deckRect.left + deckRect.width/2 - cardRect.width/2}px;
+        `;
+        document.body.appendChild(clone);
+
+        const p = new Promise(resolve => {
+          gsap.to(clone, {
+            top: cardRect.top,
+            left: cardRect.left,
+            duration: 0.4 * sm,
+            delay: i * 0.06 * sm,
+            ease: 'power2.out',
+            onComplete: () => {
+              clone.remove();
+              // Reveal the actual card
+              const idx = dealingCardIds.value.indexOf(card.id);
+              if (idx >= 0) dealingCardIds.value.splice(idx, 1);
+              resolve();
+            }
+          });
+        });
+        promises.push(p);
+      });
+
+      await Promise.all(promises);
+    }
+
+    // ─── INIT GAME ───────────────────────────────────────────
+    async function initGame() {
+      currentBlindIndex.value = 0;
+      blindScore.value = 0;
+      displayScore.value = 0;
+      money.value = 0;
+      handsLeft.value = 4;
+      discardsLeft.value = 3;
+      ownedJokers.splice(0);
+      handCards.splice(0);
+      selectedCards.splice(0);
+      playedCards.splice(0);
+      playedHandType.value = null;
+      displayChips.value = 0;
+      displayMult.value = 0;
+      gameState.value = 'playing';
+      isAnimating.value = false;
+      aiThinking.value = false;
+
+      initDeck();
+      await nextTick();
+      await dealCards(8);
+    }
+
+    // ─── TOGGLE CARD SELECT ──────────────────────────────────
+    function toggleCardSelect(card) {
+      if (isAnimating.value) return;
+      const idx = selectedCards.indexOf(card.id);
+      if (idx >= 0) {
+        selectedCards.splice(idx, 1);
+      } else {
+        if (selectedCards.length < 5) {
+          selectedCards.push(card.id);
+        }
+      }
+    }
+
+    // ─── HANDLE PLAY ─────────────────────────────────────────
+    async function handlePlay() {
+      if (selectedCards.length === 0 || isAnimating.value) return;
+      isAnimating.value = true;
+
+      const toPlay = handCards.filter(c => selectedCards.includes(c.id));
+      const handType = detectHandType(toPlay);
+
+      // Anim 1: Cards fly from hand to play zone
+      await animCardsToPlayZone(toPlay);
+
+      // Set played cards
+      playedCards.splice(0);
+      toPlay.forEach(c => playedCards.push({ ...c, highlighted: false }));
+      playedHandType.value = handType;
+
+      // Remove from hand
+      toPlay.forEach(c => {
+        const idx = handCards.findIndex(h => h.id === c.id);
+        if (idx >= 0) handCards.splice(idx, 1);
+      });
+      selectedCards.splice(0);
+
+      await nextTick();
+
+      // Calculate base chips/mult
+      let chips = handType.chips + toPlay.reduce((s,c) => s+rankValue(c.rank), 0);
+      let mult = handType.mult;
+
+      displayChips.value = handType.chips;
+      displayMult.value = mult;
+
+      // Anim 2: Highlight each card + chips fly text
+      await animHighlightCards(toPlay, handType.chips, chips, mult);
+
+      // Anim 3: Joker triggers
+      let ctx = { chips, mult, playedCards: toPlay, handName: handType.name };
+      await animJokerTriggers(ctx);
+
+      const finalScore = ctx.chips * ctx.mult;
+      displayChips.value = ctx.chips;
+      displayMult.value = ctx.mult;
+
+      // Score popup
+      await showScorePopup(ctx.chips, ctx.mult, finalScore);
+
+      // Update blind score
+      const oldScore = blindScore.value;
+      const newScore = blindScore.value + finalScore;
+      blindScore.value = newScore;
+      await animateScoreCount(oldScore, newScore);
+
+      handsLeft.value--;
+
+      // Check win/lose
+      if (blindScore.value >= currentBlind.value.target) {
+        // Win this blind
+        const reward = 5 + handsLeft.value;
+        money.value += reward;
+        await new Promise(r => setTimeout(r, 600 * speedMult()));
+
+        if (currentBlindIndex.value >= BLINDS.length - 1) {
+          // Final blind won
+          gameState.value = 'won';
+        } else {
+          // Go to shop
+          openShop();
+        }
+      } else if (handsLeft.value <= 0) {
+        gameState.value = 'lost';
+      } else {
+        // Deal new cards
+        playedCards.splice(0);
+        playedHandType.value = null;
+        displayChips.value = 0;
+        displayMult.value = 0;
+        const toDeal = Math.min(toPlay.length, 52 - handCards.length);
+        if (toDeal > 0) await dealCards(toDeal);
+      }
+
+      isAnimating.value = false;
+    }
+
+    // ─── ANIMATION 1: Cards fly to play zone ─────────────────
+    async function animCardsToPlayZone(toPlay) {
+      const sm = speedMult();
+      const playZoneEl = document.getElementById('play-zone');
+      if (!playZoneEl) return;
+      const targetRect = playZoneEl.getBoundingClientRect();
+
+      const promises = toPlay.map((card, i) => {
+        const cardIdx = handCards.findIndex(h => h.id === card.id);
+        const cardEl = document.getElementById('hand-card-' + cardIdx);
+        if (!cardEl) return Promise.resolve();
+
+        const srcRect = cardEl.getBoundingClientRect();
+
+        const clone = document.createElement('div');
+        clone.className = 'card';
+        clone.style.cssText = `
+          position: fixed;
+          width: ${srcRect.width}px;
+          height: ${srcRect.height}px;
+          top: ${srcRect.top}px;
+          left: ${srcRect.left}px;
+          z-index: 500;
+          pointer-events: none;
+          background: linear-gradient(180deg, #fff8e1, #f7e9c4);
+          border: 2px solid #1a0f24;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+        `;
+        clone.innerHTML = suitEmoji(card.suit);
+        document.body.appendChild(clone);
+
+        const destX = targetRect.left + 20 + i * 92;
+        const destY = targetRect.top + 60;
+
+        return new Promise(resolve => {
+          gsap.to(clone, {
+            top: destY,
+            left: destX,
+            duration: 0.35 * sm,
+            delay: i * 0.04 * sm,
+            ease: 'power2.inOut',
+            onComplete: () => {
+              clone.remove();
+              resolve();
+            }
+          });
+        });
+      });
+
+      await Promise.all(promises);
+    }
+
+    // ─── ANIMATION 2: Highlight cards + chips fly ────────────
+    async function animHighlightCards(cards, baseChips, totalChips, mult) {
+      const sm = speedMult();
+      const chipsEl = document.getElementById('sb-chips');
+
+      let runningChips = baseChips;
+
+      for (let i = 0; i < cards.length; i++) {
+        const playedEl = document.getElementById('played-card-' + i);
+        if (playedEl) {
+          playedCards[i].highlighted = true;
+          await new Promise(r => setTimeout(r, 20));
+
+          // Fly chips text
+          const cardRect = playedEl.getBoundingClientRect();
+          const chipVal = rankValue(cards[i].rank);
+          runningChips += chipVal;
+          displayChips.value = runningChips;
+          triggerNumJump('sb-chips');
+
+          if (chipsEl) {
+            const flyEl = document.createElement('div');
+            flyEl.className = 'fly-text chip-fly';
+            flyEl.textContent = '+' + chipVal;
+            flyEl.style.cssText = `top:${cardRect.top - 10}px; left:${cardRect.left + 20}px;`;
+            document.body.appendChild(flyEl);
+
+            const chipsRect = chipsEl.getBoundingClientRect();
+            gsap.to(flyEl, {
+              top: chipsRect.top,
+              left: chipsRect.left,
+              opacity: 0,
+              duration: 0.4 * sm,
+              ease: 'power1.in',
+              onComplete: () => flyEl.remove()
+            });
+          }
+        }
+
+        await new Promise(r => setTimeout(r, 150 * sm));
+      }
+
+      // Un-highlight after
+      await new Promise(r => setTimeout(r, 200 * sm));
+      playedCards.forEach(c => c.highlighted = false);
+    }
+
+    // ─── ANIMATION 3: Joker triggers ─────────────────────────
+    async function animJokerTriggers(ctx) {
+      const sm = speedMult();
+      const multEl = document.getElementById('sb-mult');
+
+      for (let ji = 0; ji < ownedJokers.length; ji++) {
+        const joker = ownedJokers[ji];
+        const prevMult = ctx.mult;
+        joker.effect(ctx);
+        const deltaMult = ctx.mult - prevMult;
+
+        if (deltaMult === 0) continue;
+
+        const jokerEl = document.getElementById('joker-' + ji);
+        if (jokerEl) {
+          gsap.to(jokerEl, {
+            y: -18,
+            scale: 1.15,
+            boxShadow: '0 0 16px #ffc857',
+            duration: 0.2 * sm,
+            yoyo: true,
+            repeat: 1,
+            ease: 'power2.inOut'
+          });
+        }
+
+        displayMult.value = ctx.mult;
+        triggerNumJump('sb-mult');
+
+        if (multEl) {
+          const jokerRect = jokerEl ? jokerEl.getBoundingClientRect() : { top: 100, left: 100 };
+          const flyEl = document.createElement('div');
+          flyEl.className = 'fly-text mult-fly';
+          const isAdd = deltaMult > 0 && (prevMult + deltaMult === ctx.mult);
+          flyEl.textContent = (ctx.mult > prevMult && Number.isInteger(ctx.mult/prevMult) && ctx.mult !== prevMult + deltaMult) ? '×' + (ctx.mult/prevMult).toFixed(0) : '+' + Math.max(0, deltaMult) + ' Mult';
+          flyEl.style.cssText = `top:${jokerRect.top}px; left:${jokerRect.left + 20}px;`;
+          document.body.appendChild(flyEl);
+
+          const multRect = multEl.getBoundingClientRect();
+          gsap.to(flyEl, {
+            top: multRect.top,
+            left: multRect.left,
+            opacity: 0,
+            duration: 0.4 * sm,
+            ease: 'power1.in',
+            onComplete: () => flyEl.remove()
+          });
+        }
+
+        await new Promise(r => setTimeout(r, 300 * sm));
+      }
+    }
+
+    // ─── SCORE POPUP ─────────────────────────────────────────
+    async function showScorePopup(chips, mult, score) {
+      const sm = speedMult();
+      const popup = document.createElement('div');
+      popup.className = 'score-popup';
+      popup.textContent = chips + ' × ' + mult + ' = ' + score;
+      popup.style.cssText = `
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 22px;
+      `;
+      document.body.appendChild(popup);
+
+      gsap.fromTo(popup,
+        { scale: 0.5, opacity: 0 },
+        { scale: 1.2, opacity: 1, duration: 0.3 * sm, ease: 'back.out(1.7)',
+          onComplete: () => {
+            gsap.to(popup, {
+              scale: 1,
+              duration: 0.1 * sm,
+              onComplete: () => {
+                setTimeout(() => {
+                  gsap.to(popup, {
+                    opacity: 0,
+                    y: -30,
+                    duration: 0.3 * sm,
+                    onComplete: () => popup.remove()
+                  });
+                }, 800 * sm);
+              }
+            });
+          }
+        }
+      );
+
+      await new Promise(r => setTimeout(r, (800 + 600) * sm));
+    }
+
+    // ─── SCORE COUNTER ANIMATION ─────────────────────────────
+    async function animateScoreCount(from, to) {
+      const duration = 600;
+      const start = performance.now();
+
+      await new Promise(resolve => {
+        function step(now) {
+          const elapsed = now - start;
+          const progress = Math.min(1, elapsed / duration);
+          displayScore.value = Math.round(from + (to - from) * progress);
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            displayScore.value = to;
+            resolve();
+          }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    function triggerNumJump(elId) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.classList.remove('num-jump');
+      void el.offsetWidth;
+      el.classList.add('num-jump');
+      el.addEventListener('animationend', () => el.classList.remove('num-jump'), { once: true });
+    }
+
+    // ─── HANDLE DISCARD ──────────────────────────────────────
+    async function handleDiscard() {
+      if (selectedCards.length === 0 || discardsLeft.value <= 0 || isAnimating.value) return;
+      isAnimating.value = true;
+
+      const toDiscard = handCards.filter(c => selectedCards.includes(c.id));
+      const count = toDiscard.length;
+
+      toDiscard.forEach(c => {
+        const idx = handCards.findIndex(h => h.id === c.id);
+        if (idx >= 0) handCards.splice(idx, 1);
+      });
+      selectedCards.splice(0);
+      discardsLeft.value--;
+
+      await nextTick();
+      if (count > 0) await dealCards(count);
+
+      isAnimating.value = false;
+    }
+
+    // ─── SORT ────────────────────────────────────────────────
+    function sortByRank() {
+      handCards.sort((a,b) => RANKS.indexOf(b.rank) - RANKS.indexOf(a.rank));
+    }
+    function sortBySuit() {
+      handCards.sort((a,b) => SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit));
+    }
+
+    // ─── AI PLAY ─────────────────────────────────────────────
+    async function handleAIPlay() {
+      if (isAnimating.value || aiThinking.value) return;
+      aiThinking.value = true;
+
+      await new Promise(r => setTimeout(r, 800 * speedMult()));
+
+      // Enumerate all subsets (1-5 cards)
+      let bestScore = -1;
+      let bestCombo = [];
+
+      const cards = [...handCards];
+
+      function subsets(arr, min=1, max=5) {
+        const result = [];
+        function helper(start, current) {
+          if (current.length >= min && current.length <= max) {
+            result.push([...current]);
+          }
+          if (current.length === max) return;
+          for (let i = start; i < arr.length; i++) {
+            current.push(arr[i]);
+            helper(i+1, current);
+            current.pop();
+          }
+        }
+        helper(0, []);
+        return result;
+      }
+
+      const allCombos = subsets(cards);
+      for (const combo of allCombos) {
+        const ht = detectHandType(combo);
+        const { score } = calcScore(ht, combo, ownedJokers);
+        if (score > bestScore) {
+          bestScore = score;
+          bestCombo = combo;
+        }
+      }
+
+      // Select the best combo
+      selectedCards.splice(0);
+      bestCombo.forEach(c => selectedCards.push(c.id));
+
+      aiThinking.value = false;
+      await new Promise(r => setTimeout(r, 200));
+      await handlePlay();
+    }
+
+    // ─── SHOP ────────────────────────────────────────────────
+    function openShop() {
+      // Pick 3 random non-duplicate jokers
+      const pool = shuffle([...JOKER_POOL]);
+      shopJokers.splice(0);
+      pool.slice(0, 3).forEach(j => shopJokers.push({ ...j, sold: false }));
+
+      // AI suggest: highest value per price
+      let bestVal = -1;
+      let bestIdx = -1;
+      shopJokers.forEach((j, i) => {
+        const est = j.price > 0 ? (j.price * 2) / j.price : 0;
+        // Simple heuristic: rare > common, lower price better
+        const rarityScore = j.rarity === '传说' ? 3 : j.rarity === '稀有' ? 2 : 1;
+        const val = rarityScore / j.price;
+        if (val > bestVal) {
+          bestVal = val;
+          bestIdx = i;
+        }
+      });
+      aiShopSuggest.value = bestIdx;
+
+      gameState.value = 'shop';
+    }
+
+    function buyJoker(joker, idx) {
+      if (joker.sold) return;
+      if (ownedJokers.length >= 5) return;
+      if (money.value < joker.price) return;
+
+      money.value -= joker.price;
+      ownedJokers.push({ ...joker });
+      shopJokers[idx].sold = true;
+    }
+
+    function getShopBtnText(joker) {
+      if (joker.sold) return '已售出';
+      if (ownedJokers.length >= 5) return '槽满了';
+      if (money.value < joker.price) return '钱不够';
+      return '购买 $' + joker.price;
+    }
+
+    function getBuyBtnClass(joker) {
+      if (joker.sold || ownedJokers.length >= 5 || money.value < joker.price) {
+        return 'shop-buy-disabled';
+      }
+      return 'shop-buy-active';
+    }
+
+    function skipShop() {
+      currentBlindIndex.value++;
+      blindScore.value = 0;
+      displayScore.value = 0;
+      handsLeft.value = 4;
+      discardsLeft.value = 3;
+      handCards.splice(0);
+      selectedCards.splice(0);
+      playedCards.splice(0);
+      playedHandType.value = null;
+      displayChips.value = 0;
+      displayMult.value = 0;
+      initDeck();
+      gameState.value = 'playing';
+
+      nextTick().then(() => dealCards(8));
+    }
+
+    // ─── RESTART ─────────────────────────────────────────────
+    function restartGame() {
+      initGame();
+    }
+
+    // ─── HELPERS ─────────────────────────────────────────────
+    function suitEmoji(suit) {
+      return suitEmojiMap(suit);
+    }
+
+    function suitColorClass(suit) {
+      return ['♥','♦'].includes(suit) ? 'suit-red' : 'suit-black';
+    }
+
+    function rarityClass(rarity) {
+      const map = { '普通': 'rarity-common', '稀有': 'rarity-rare', '传说': 'rarity-legend' };
+      return map[rarity] || 'rarity-common';
+    }
+
+    function rarityTextClass(rarity) {
+      const map = { '普通': 'rarity-common-text', '稀有': 'rarity-rare-text', '传说': 'rarity-legend-text' };
+      return map[rarity] || 'rarity-common-text';
+    }
+
+    // ─── MOUNT ───────────────────────────────────────────────
+    onMounted(() => {
+      initGame();
+    });
+
+    return {
+      settings,
+      showSettings,
+      saveSettings,
+      gameState,
+      currentBlindIndex,
+      currentBlind,
+      blindScore,
+      displayScore,
+      money,
+      handsLeft,
+      discardsLeft,
+      ownedJokers,
+      handCards,
+      selectedCards,
+      playedCards,
+      playedHandType,
+      isAnimating,
+      aiThinking,
+      dealingCardIds,
+      shopJokers,
+      aiShopSuggest,
+      displayChips,
+      displayMult,
+      selectedHandType,
+      previewChips,
+      previewMult,
+      deckRemaining,
+      toggleCardSelect,
+      handlePlay,
+      handleDiscard,
+      sortByRank,
+      sortBySuit,
+      handleAIPlay,
+      buyJoker,
+      getShopBtnText,
+      getBuyBtnClass,
+      skipShop,
+      restartGame,
+      suitEmoji,
+      suitColorClass,
+      rarityClass,
+      rarityTextClass,
+    };
+  }
+}).mount('#app');
+</script>
+
+<!-- // 实施完成，待验收 -->
+</body>
+</html>
