@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>🃏 小丑牌</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -902,9 +902,80 @@ body {
 .rarity-common-text { color: #6cb4d3; }
 .rarity-rare-text   { color: #e34b6f; }
 .rarity-legend-text { color: #b577ff; }
+
+/* ─── MOBILE: 全局触控优化 ─── */
+* { -webkit-tap-highlight-color: transparent; }
+.card, .px-btn, .joker-card, .shop-item, .toggle-switch {
+  touch-action: manipulation;
+}
+
+/* ─── MOBILE: 安全区适配（刘海屏）─── */
+@supports (padding: env(safe-area-inset-left)) {
+  #app {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ─── MOBILE: 竖屏挡板 ─── */
+#rotate-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #0a1438;
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.rotate-icon {
+  font-size: 64px;
+  animation: rotate-hint 2s ease-in-out infinite;
+}
+.rotate-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255,200,87,.4);
+}
+.rotate-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.5);
+}
+@keyframes rotate-hint {
+  0%, 100% { transform: rotate(-20deg); }
+  50%       { transform: rotate(20deg); }
+}
+
+@media (orientation: portrait) {
+  #rotate-prompt { display: flex; }
+  #app           { display: none !important; }
+}
+
+/* ─── MOBILE LANDSCAPE: 缩放适配 ─── */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  html, body { overflow: hidden; height: 100%; }
+  #app {
+    transform: scale(var(--mobile-scale, 1));
+    transform-origin: top left;
+    width:  calc(100vw / var(--mobile-scale, 1));
+    height: calc(100vh / var(--mobile-scale, 1));
+  }
+}
 </style>
 </head>
 <body>
+
+<!-- 竖屏挡板：仅移动端竖屏显示 -->
+<div id="rotate-prompt">
+  <div class="rotate-icon">📱</div>
+  <div class="rotate-text">请旋转屏幕</div>
+  <div class="rotate-sub">小丑牌仅支持横屏模式</div>
+</div>
+
 <div id="app">
   <!-- SETTINGS MODAL -->
   <div class="modal-overlay" v-if="showSettings" @click.self="showSettings=false">
@@ -2071,6 +2142,32 @@ createApp({
 }).mount('#app');
 </script>
 
-<!-- // 实施完成，待验收 -->
+<!-- 移动端横屏缩放：纯展示逻辑，不涉及游戏状态 -->
+<script>
+(function () {
+  var DESIGN_H = 760;  // 设计稿基准高度 (px)
+  var DESIGN_W = 1280; // 设计稿基准宽度 (px)
+
+  function applyScale() {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    var isLandscape = w > h;
+    var isMobile = h <= 500;
+
+    if (isLandscape && isMobile) {
+      var scale = Math.min(h / DESIGN_H, w / DESIGN_W);
+      document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(4));
+    } else {
+      document.documentElement.style.removeProperty('--mobile-scale');
+    }
+  }
+
+  applyScale();
+  window.addEventListener('resize', applyScale);
+  if (screen.orientation) {
+    screen.orientation.addEventListener('change', applyScale);
+  }
+})();
+</script>
 </body>
 </html>
