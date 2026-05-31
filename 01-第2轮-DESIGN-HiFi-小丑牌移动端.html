@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小丑牌 · 高保真移动端横屏设计稿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ============================================================
+   CSS Design Tokens — 100% 同步 index.html :root
+   ============================================================ */
+:root {
+  --bg-deep:    #0a1438;
+  --bg-water:   #1a2858;
+  --bg-glow:    #2d4080;
+  --sb-blue:    #4a6bff;
+  --chips-from: #4dd6ff;
+  --chips-to:   #2196f3;
+  --mult-from:  #ff8844;
+  --mult-to:    #ff3344;
+  --gold:       #ffc857;
+  --money:      #ffb030;
+  --paper-1:    #fff8e1;
+  --paper-2:    #f7e9c4;
+  --card-edge:  #1a0f24;
+  --muted:      rgba(255,255,255,0.38);
+  --btn-red:    #ff3838;
+  --btn-discard:#ff5544;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: #0d0d0d;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+}
+
+/* ============================================================
+   Page Layout
+   ============================================================ */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px 64px;
+  gap: 24px;
+}
+
+.page-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #ffc857;
+  letter-spacing: 1.5px;
+  text-align: center;
+  opacity: 0.9;
+}
+.page-subtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  margin-top: 6px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ============================================================
+   Device Frame — 手机横屏外壳
+   外框尺寸 = 844 + 2*24 side bezel + labels = 924 x 474
+   ============================================================ */
+.device-frame {
+  position: relative;
+  width: 924px;
+  height: 474px;
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a, #111);
+  border-radius: 40px;
+  padding: 42px 40px;
+  box-shadow:
+    0 0 0 2px #333,
+    0 0 0 4px #1a1a1a,
+    0 8px 48px rgba(0,0,0,0.9),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 摄像头 / 刘海模拟 */
+.device-frame::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #0a0a0a;
+  border: 2px solid #222;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.8);
+}
+
+/* Home Indicator (右侧条) */
+.device-frame::after {
+  content: '';
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60px;
+  border-radius: 3px;
+  background: #2a2a2a;
+}
+
+/* ============================================================
+   Game Viewport — 844 x 390
+   ============================================================ */
+.game-viewport {
+  width: 844px;
+  height: 390px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   Safe Area Overlay — 安全区标注层（细虚线 + 外侧标注）
+   ============================================================ */
+.safe-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  border-radius: 4px;
+  overflow: visible;
+}
+
+/* 左侧刘海安全区 47px：细虚线边界 */
+.safe-left-zone {
+  position: absolute;
+  left: 47px; top: 0; bottom: 0;
+  width: 0;
+  border-left: 1px dashed rgba(255, 200, 87, 0.45);
+}
+.safe-left-label {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  font-size: 9px;
+  font-family: 'Inter', monospace;
+  color: rgba(255, 200, 87, 0.75);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* 右侧安全区 44px：细虚线边界 */
+.safe-right-zone {
+  position: absolute;
+  right: 44px; top: 0; bottom: 0;
+  width: 0;
+  border-left: 1px dashed rgba(255, 200, 87, 0.35);
+}
+.safe-right-label {
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  transform: translateY(-50%);
+  font-size: 9px;
+  font-family: 'Inter', monospace;
+  color: rgba(255, 200, 87, 0.65);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* 底部 Home Indicator 21px：细虚线 */
+.safe-bottom-zone {
+  position: absolute;
+  bottom: 21px; left: 0; right: 0;
+  height: 0;
+  border-top: 1px dashed rgba(255, 200, 87, 0.4);
+}
+.safe-bottom-label {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-family: 'Inter', monospace;
+  color: rgba(255, 200, 87, 0.7);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+/* ============================================================
+   Game Content — 缩放容器
+   原始尺寸 1280 x 760，scale=0.51 => 652.8 x 387.6
+   transform-origin: top left，外层 viewport 宽 844px，内容居中
+   ============================================================ */
+.game-content {
+  width: 1280px;
+  height: 760px;
+  transform: scale(0.51);
+  transform-origin: top left;
+  /* 水平居中：(844 - 1280*0.51) / 2 = (844 - 652.8) / 2 = 95.6px */
+  margin-left: 96px;
+  display: flex;
+  overflow: hidden;
+
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45,64,128,.6), transparent 70%),
+    radial-gradient(ellipse 120% 80% at 30% 70%, rgba(74,107,255,.15), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0 2px, transparent 2px 4px),
+    linear-gradient(135deg, #0a1438 0%, #1a2858 50%, #0a1438 100%);
+}
+
+/* ============================================================
+   LEFT SIDEBAR — 280px wide
+   ============================================================ */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: rgba(10,16,48,0.85);
+  border-right: 1px solid rgba(74,107,255,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  padding: 16px 14px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  color: #ffc857;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  margin-bottom: 14px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.sb-panel {
+  background: rgba(26,40,88,0.6);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(74,107,255,0.15);
+}
+
+/* Blind Panel */
+.blind-panel {
+  text-align: center;
+}
+.blind-icon {
+  font-size: 32px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.blind-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffc857;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 4px;
+}
+.blind-target-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.blind-target-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+}
+.blind-target {
+  font-family: 'VT323', monospace;
+  font-size: 28px;
+  color: #ffc857;
+  line-height: 1;
+}
+.blind-reward {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffc857;
+  margin-top: 4px;
+}
+
+/* Round Score */
+.round-score-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.38);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.round-score-val {
+  font-family: 'VT323', monospace;
+  font-size: 42px;
+  color: #ff4d4d;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.progress-bar-wrap {
+  background: rgba(0,0,0,0.4);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 35%;
+  background: linear-gradient(90deg, #4a6bff, #4dd6ff);
+}
+
+/* Chips × Mult */
+.hand-type-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+  color: rgba(255,255,255,0.38);
+}
+.chips-mult-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+.chips-block {
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 72px;
+  text-align: center;
+  background: linear-gradient(135deg, #4dd6ff, #2196f3);
+}
+.mult-block {
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 72px;
+  text-align: center;
+  background: linear-gradient(135deg, #ff8844, #ff3344);
+}
+.cm-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 28px;
+  color: #000;
+  line-height: 1;
+  display: block;
+}
+.cm-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: rgba(0,0,0,0.6);
+  display: block;
+  margin-top: 2px;
+}
+.times-sym {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #fff;
+}
+
+/* Hands / Discards */
+.hd-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.hd-block {
+  text-align: center;
+  flex: 1;
+}
+.hd-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.38);
+  display: block;
+  margin-bottom: 2px;
+}
+.hd-num-hands {
+  font-family: 'VT323', monospace;
+  font-size: 34px;
+  color: #4ade80;
+  line-height: 1;
+}
+.hd-num-discards {
+  font-family: 'VT323', monospace;
+  font-size: 34px;
+  color: #f87171;
+  line-height: 1;
+}
+
+/* Gold */
+.gold-panel {
+  background: #0a0e1a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.gold-sign {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffb030;
+}
+.gold-amount {
+  font-family: 'VT323', monospace;
+  font-size: 44px;
+  color: #ffc857;
+  line-height: 1;
+}
+
+/* Ante info */
+.ante-info {
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.ante-num { color: #ffc857; font-weight: 700; }
+.round-num { color: #4a6bff; font-weight: 700; }
+
+/* Restart Button */
+.px-btn {
+  min-height: 52px;
+  padding: 14px 26px;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+  border: 2px solid rgba(0,0,0,.35);
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+  display: block;
+  text-align: center;
+  line-height: 1.4;
+}
+.btn-red {
+  background: linear-gradient(180deg, #fb7185, #ef4444, #dc2626);
+  box-shadow: 0 5px 0 #991b1b, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+  width: 100%;
+}
+
+/* ============================================================
+   RIGHT MAIN AREA — flex:1, 3-row grid
+   Row 1: 230px (Joker Zone)
+   Row 2: 1fr  (Play Zone)
+   Row 3: 340px (Hand Zone)
+   ============================================================ */
+.main-area {
+  flex: 1;
+  display: grid;
+  grid-template-rows: 230px 1fr 340px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── ROW 1: JOKER ZONE ── */
+.joker-zone {
+  background: rgba(15,23,42,.6);
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(74,107,255,0.2);
+}
+.joker-zone-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffc857;
+  text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.joker-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Joker Card */
+.joker-card {
+  width: 140px;
+  height: 200px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #fff8e1, #f7e9c4);
+  border: 2px solid #1a0f24;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  position: relative;
+  cursor: default;
+}
+.joker-card.rarity-common { box-shadow: inset 0 0 0 3px #6cb4d3; }
+.joker-card.rarity-rare   { box-shadow: inset 0 0 0 3px #e34b6f; }
+.joker-card.rarity-legend { box-shadow: inset 0 0 0 3px #b577ff; }
+
+.joker-art   { font-size: 48px; line-height: 1; margin-bottom: 6px; }
+.joker-name  {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a0f24;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.joker-desc  {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  color: #555;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Joker Empty Slot */
+.joker-slot-empty {
+  width: 140px;
+  height: 200px;
+  flex-shrink: 0;
+  border: 2px dashed rgba(79,70,229,.4);
+  border-radius: 10px;
+  background: rgba(79,70,229,.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.joker-slot-plus  { font-size: 24px; color: rgba(255,255,255,0.3); }
+.joker-slot-label { font-size: 12px; color: rgba(255,255,255,0.3); font-family: 'Inter', sans-serif; }
+
+/* ── ROW 2: PLAY ZONE ── */
+.play-zone {
+  background: rgba(5,8,24,.5);
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(74,107,255,0.2);
+}
+.play-zone-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.play-zone-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.38);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.hand-type-float {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a6bff;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Score display row inside play zone */
+.play-score-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+.play-chips-block {
+  border-radius: 8px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #4dd6ff, #2196f3);
+  text-align: center;
+}
+.play-mult-block {
+  border-radius: 8px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #ff8844, #ff3344);
+  text-align: center;
+}
+.play-cm-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 22px;
+  color: #000;
+  line-height: 1;
+  display: block;
+}
+.play-cm-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: rgba(0,0,0,0.6);
+  display: block;
+  margin-top: 2px;
+}
+.play-times {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #fff;
+}
+
+.played-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Deck pile */
+.deck-pile {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  width: 90px;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.deck-stack {
+  position: relative;
+  width: 90px;
+  height: 130px;
+}
+.deck-card-back {
+  position: absolute;
+  width: 90px;
+  height: 130px;
+  border-radius: 8px;
+  border: 2px solid rgba(74,107,255,0.5);
+  background: linear-gradient(135deg, #0a1438 0%, #1a2858 40%, #2d4080 60%, #1a2858 100%);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  opacity: 0.9;
+}
+.deck-card-back:nth-child(1) { transform: translate(-6px, 6px); opacity: 0.5; }
+.deck-card-back:nth-child(2) { transform: translate(-3px, 3px); opacity: 0.7; }
+.deck-card-back:nth-child(3) { transform: translate(0, 0); opacity: 1; }
+.deck-count {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #ffc857;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* ── ROW 3: HAND ZONE ── */
+.hand-zone {
+  padding: 20px 20px 12px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.hand-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffc857;
+  font-family: 'Inter', sans-serif;
+}
+.hand-selected-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Inter', sans-serif;
+}
+.hand-cards-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  height: 155px;
+  align-items: flex-start;
+}
+
+/* Playing Card */
+.card {
+  width: 100px;
+  height: 145px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #fff8e1, #f7e9c4);
+  border: 2px solid #1a0f24;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.18s ease;
+}
+.card.selected {
+  transform: translateY(-28px);
+  box-shadow: 0 6px 16px rgba(74,107,255,.5), 0 3px 8px rgba(0,0,0,.5);
+}
+.card-corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  font-size: 12px;
+  font-weight: 700;
+}
+.card-corner-tl { top: 4px; left: 6px; }
+.card-corner-br { bottom: 4px; right: 6px; transform: rotate(180deg); }
+.card-center { font-size: 36px; line-height: 1; }
+.suit-red   { color: #e63946; }
+.suit-black { color: #1a0f24; }
+
+/* Action Row */
+.action-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  padding-right: 130px;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+.action-btn {
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+  border-radius: 10px;
+  border: 2px solid rgba(0,0,0,.35);
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+}
+
+/* 出牌 — 蓝色 */
+.btn-play {
+  background: linear-gradient(180deg, #6d8fff, #4a6bff, #2d4dcc);
+  box-shadow: 0 4px 0 #1a2d99, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+}
+/* 弃牌 — 橙红 */
+.btn-discard-action {
+  background: linear-gradient(180deg, #ff7766, #ff5544, #cc3322);
+  box-shadow: 0 4px 0 #991a11, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+}
+/* 按点 / 按花 — 幽灵白 */
+.btn-sort {
+  background: linear-gradient(180deg, rgba(99,102,241,.28), rgba(67,56,202,.20));
+  box-shadow: 0 3px 0 rgba(67,56,202,.4), inset 0 1px 0 rgba(255,255,255,.3);
+  color: #a5b4fc;
+  font-size: 13px;
+  min-height: 40px;
+}
+/* AI 出牌 — 紫色 */
+.btn-ai {
+  background: linear-gradient(180deg, #c084fc, #a855f7, #7e22ce);
+  box-shadow: 0 4px 0 #581c87, inset 0 1px 0 rgba(255,255,255,.3);
+  color: #fff;
+}
+
+/* ============================================================
+   Settings Gear (装饰)
+   ============================================================ */
+.settings-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid rgba(0,0,0,.35);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: linear-gradient(180deg, #fbbf24, #f59e0b, #d97706);
+  box-shadow: 0 4px 0 #92400e, inset 0 1px 0 rgba(255,255,255,.3);
+}
+
+/* ============================================================
+   Legend / Spec Block
+   ============================================================ */
+.spec-section {
+  width: 924px;
+  flex-shrink: 0;
+}
+.spec-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #ffc857;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(74,107,255,0.3);
+}
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.spec-card {
+  background: linear-gradient(180deg, #111e44, #0a1438);
+  border: 1px solid rgba(74,107,255,.3);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.spec-card-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(74,107,255,.1);
+  font-size: 12px;
+}
+.spec-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.spec-key { color: rgba(255,255,255,0.5); font-family: 'Inter', sans-serif; }
+.spec-val { color: #fff; font-family: monospace; font-size: 11px; }
+.spec-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* Legend row */
+.legend-row {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(74,107,255,.15);
+  border-radius: 8px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+}
+.legend-swatch {
+  width: 28px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- 页面标题 -->
+  <div>
+    <div class="page-title">小丑牌 · 移动端横屏高保真设计稿</div>
+    <div class="page-subtitle">844 × 390px · transform scale(0.51) · Press Start 2P + VT323 + Inter</div>
+  </div>
+
+  <!-- 设备外框 -->
+  <div class="device-frame">
+
+    <!-- 游戏视窗 -->
+    <div class="game-viewport">
+
+      <!-- 安全区标注层 -->
+      <div class="safe-overlay">
+        <div class="safe-left-zone">
+          <div class="safe-left-label">SAFE 47px · Camera</div>
+        </div>
+        <div class="safe-right-zone">
+          <div class="safe-right-label">SAFE 44px</div>
+        </div>
+        <div class="safe-bottom-zone">
+          <div class="safe-bottom-label">HOME INDICATOR · 21px</div>
+        </div>
+      </div>
+
+      <!-- 游戏内容（1280×760 缩放到 652×387） -->
+      <div class="game-content">
+
+        <!-- ===== LEFT SIDEBAR ===== -->
+        <div class="sidebar">
+
+          <!-- Logo -->
+          <div class="sidebar-logo">🃏 小丑牌</div>
+
+          <!-- 盲注面板 -->
+          <div class="sb-panel blind-panel">
+            <div class="blind-icon">🔵</div>
+            <div class="blind-name">小盲注</div>
+            <div class="blind-target-row">
+              <span class="blind-target-label">目标</span>
+              <span class="blind-target">300</span>
+            </div>
+            <div class="blind-reward">奖励 $9</div>
+          </div>
+
+          <!-- Round Score + 进度条 -->
+          <div class="sb-panel">
+            <div class="round-score-label">Round Score</div>
+            <div class="round-score-val">0</div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill"></div>
+            </div>
+          </div>
+
+          <!-- 筹码 × 倍数 -->
+          <div class="sb-panel">
+            <div class="hand-type-name">— 选牌出牌 —</div>
+            <div class="chips-mult-row">
+              <div class="chips-block">
+                <span class="cm-num">0</span>
+                <span class="cm-label">CHIPS</span>
+              </div>
+              <span class="times-sym">×</span>
+              <div class="mult-block">
+                <span class="cm-num">0</span>
+                <span class="cm-label">MULT</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 手数 / 弃牌 -->
+          <div class="sb-panel">
+            <div class="hd-row">
+              <div class="hd-block">
+                <span class="hd-label">手数</span>
+                <div class="hd-num-hands">4</div>
+              </div>
+              <div class="hd-block">
+                <span class="hd-label">弃牌</span>
+                <div class="hd-num-discards">3</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 金币 -->
+          <div class="gold-panel">
+            <span class="gold-sign">$</span>
+            <span class="gold-amount">4</span>
+          </div>
+
+          <!-- 底注 / 回合 -->
+          <div class="ante-info">
+            底注 <span class="ante-num">$1</span> &nbsp;/&nbsp; 回合 <span class="round-num">1</span>
+          </div>
+
+          <!-- 重新开始 -->
+          <div class="px-btn btn-red">重新开始</div>
+
+        </div>
+        <!-- /SIDEBAR -->
+
+        <!-- ===== MAIN AREA ===== -->
+        <div class="main-area">
+
+          <!-- 设置按钮（绝对定位装饰） -->
+          <div class="settings-btn" style="position:absolute;top:8px;right:8px;z-index:20;">⚙</div>
+
+          <!-- ROW 1: JOKER ZONE -->
+          <div class="joker-zone">
+            <div class="joker-zone-title">JOKERS &nbsp;·&nbsp; 3/5</div>
+            <div class="joker-row">
+
+              <!-- 小丑牌 1 — common -->
+              <div class="joker-card rarity-common">
+                <div class="joker-art">🤡</div>
+                <div class="joker-name">滑稽小丑</div>
+                <div class="joker-desc">每打出一手牌<br>获得 +4 筹码</div>
+              </div>
+
+              <!-- 小丑牌 2 — rare -->
+              <div class="joker-card rarity-rare">
+                <div class="joker-art">💀</div>
+                <div class="joker-name">死神</div>
+                <div class="joker-desc">同花顺触发时<br>×2 倍数</div>
+              </div>
+
+              <!-- 小丑牌 3 — legend -->
+              <div class="joker-card rarity-legend">
+                <div class="joker-art">👑</div>
+                <div class="joker-name">钻石国王</div>
+                <div class="joker-desc">♦ 系牌每张<br>额外 +8 筹码</div>
+              </div>
+
+              <!-- 空槽位 1 -->
+              <div class="joker-slot-empty">
+                <div class="joker-slot-plus">+</div>
+                <div class="joker-slot-label">空槽位</div>
+              </div>
+
+              <!-- 空槽位 2 -->
+              <div class="joker-slot-empty">
+                <div class="joker-slot-plus">+</div>
+                <div class="joker-slot-label">空槽位</div>
+              </div>
+
+            </div>
+          </div>
+          <!-- /ROW 1 -->
+
+          <!-- ROW 2: PLAY ZONE -->
+          <div class="play-zone">
+            <div class="play-zone-header">
+              <span class="play-zone-label">出牌区</span>
+              <span class="hand-type-float">— 选牌出牌 —</span>
+            </div>
+
+            <!-- 分数显示 -->
+            <div class="play-score-row">
+              <div class="play-chips-block">
+                <span class="play-cm-num">0</span>
+                <span class="play-cm-label">CHIPS</span>
+              </div>
+              <span class="play-times">×</span>
+              <div class="play-mult-block">
+                <span class="play-cm-num">0</span>
+                <span class="play-cm-label">MULT</span>
+              </div>
+            </div>
+
+            <!-- 空状态提示 -->
+            <div class="played-empty">选择手牌后点击「出牌」</div>
+
+            <!-- 牌堆 -->
+            <div class="deck-pile">
+              <div class="deck-stack">
+                <div class="deck-card-back">🃏</div>
+                <div class="deck-card-back">🃏</div>
+                <div class="deck-card-back">🃏</div>
+              </div>
+              <div class="deck-count">剩 44 张</div>
+            </div>
+          </div>
+          <!-- /ROW 2 -->
+
+          <!-- ROW 3: HAND ZONE -->
+          <div class="hand-zone">
+            <div class="hand-header">
+              <span class="hand-label">手牌</span>
+              <span class="hand-selected-count">已选 0 / 5 张</span>
+            </div>
+
+            <!-- 8张手牌 -->
+            <div class="hand-cards-row">
+
+              <!-- 牌1: A♠ -->
+              <div class="card">
+                <div class="card-corner card-corner-tl">
+                  <span class="suit-black">A</span>
+                  <span class="suit-black">♠</span>
+                </div>
+                <div class="card-center suit-black">♠</div>
+                <div class="card-corner card-corner-br">
+                  <span class="suit-black">A</span>
+                  <span class="suit-black">♠</span>
+                </div>
+              </div>
+
+              <!-- 牌2: K♥ 已选中 -->
+              <div class="card selected">
+                <div class="card-corner card-corner-tl">
+                  <span class="suit-red">K</span>
+                  <span class="suit-red">♥</span>
+                </div>
+                <div class="card-center suit-red">♥</div>
+                <div class="card-corner card-corner-br">
+                  <span class="suit-red">K</span>
+                  <span class="suit-red">♥</span>
+                </div>
+              </div>
+
+              <!-- 牌3: Q♦ -->
+              <div class="card">
+                <div class="card-corner card-corner-tl">
+                  <span class="suit-red">Q</span>
+                  <span class="suit-red">♦</span>
+                </div>
+                <div class="card-center suit-red">♦</div>
+                <div class="card-corner card-corner-br">
+                  <span class="suit-red">Q</span>
+                  <span class="suit-red">♦</span>
+                </div>
+              </div>
+
+              <!-- 牌4: J♣ -->
+              <div class="card">
+                <div class="card-corner card-corner-tl">
+                  <span class="suit-black">J</span>
+                  <span class="suit-black">♣</span>
+                </div>
+                <div class="card-center suit-black">♣</div>
+                <div class="card-corner card-corner-br">
+                  <span class="suit-black">J</span>
+                  <span class="suit-black">♣</span>
+                </div>
+              </div>
+
+              <!-- 牌5: 10♥ 已选中 -->
+              <div class="card selected">
+                <div class="card-corner card-corner-tl">
+                  <span class="suit-red">10</span>
+                  <span class="suit-red">♥</span>
+                </div>
+                <div class="card-center suit-red">♥</div>
+                <div class="card-corner card-corner-br">
+                  <span class="suit-red">10</span>
+                  <span class="suit-red">♥</span>
+                </div>
+              </div>
+
+              <!-- 牌6: 8♠ -->
+              <div class="card">
+                <div class="card-corner card-corner-tl">
+                  <span class="suit-black">8</span>
+                  <span class="suit-black">♠</span>
+                </div>
+                <div class="card-center suit-black">♠</div>
+                <div class="card-corner card-corner-br">
+                  <span class="suit-black">8</span>
+                  <span class="suit-black">♠</span>
+                </div>
+              </div>
+
+              <!-- 牌7: 6♦ -->
+              <div class="card">
+                <div class="card-corner card-corner-tl">
+                  <span class="suit-red">6</span>
+                  <span class="suit-red">♦</span>
+                </div>
+                <div class="card-center suit-red">♦</div>
+                <div class="card-corner card-corner-br">
+                  <span class="suit-red">6</span>
+                  <span class="suit-red">♦</span>
+                </div>
+              </div>
+
+              <!-- 牌8: 3♣ -->
+              <div class="card">
+                <div class="card-corner card-corner-tl">
+                  <span class="suit-black">3</span>
+                  <span class="suit-black">♣</span>
+                </div>
+                <div class="card-center suit-black">♣</div>
+                <div class="card-corner card-corner-br">
+                  <span class="suit-black">3</span>
+                  <span class="suit-black">♣</span>
+                </div>
+              </div>
+
+            </div><!-- /hand-cards-row -->
+
+            <!-- 操作按钮行 -->
+            <div class="action-row">
+              <div class="action-btn btn-play">出牌 (0)</div>
+              <div class="action-btn btn-discard-action">弃牌 (0)</div>
+              <div class="action-btn btn-sort">按点</div>
+              <div class="action-btn btn-sort">按花</div>
+              <div class="action-btn btn-ai">AI 出牌</div>
+            </div>
+
+          </div><!-- /HAND ZONE -->
+
+        </div><!-- /main-area -->
+
+      </div><!-- /game-content -->
+
+    </div><!-- /game-viewport -->
+
+  </div><!-- /device-frame -->
+
+  <!-- ============================================================
+       组件规范区块
+       ============================================================ -->
+  <div class="spec-section">
+
+    <div class="spec-title">组件规范 · 颜色 &amp; 尺寸对照表</div>
+
+    <div class="spec-grid">
+
+      <!-- 按钮规范 -->
+      <div class="spec-card">
+        <div class="spec-card-title">按钮 Buttons</div>
+        <div class="spec-row">
+          <span class="spec-key">出牌</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:linear-gradient(135deg,#6d8fff,#4a6bff)"></span>
+            #4a6bff · 原44px / 缩22px
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">弃牌</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:linear-gradient(135deg,#ff7766,#ff5544)"></span>
+            #ff5544 · 原44px / 缩22px
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">按点/按花</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:rgba(99,102,241,0.28)"></span>
+            ghost · 原40px / 缩20px
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">AI出牌</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:linear-gradient(135deg,#c084fc,#7e22ce)"></span>
+            #a855f7 · 原44px / 缩22px
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">重新开始</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:linear-gradient(135deg,#fb7185,#dc2626)"></span>
+            #ef4444 · 原52px / 缩27px
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">圆角</span>
+          <span class="spec-val">原12px / 缩6px</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">字体</span>
+          <span class="spec-val">Inter 800 · 原16px / 缩8px</span>
+        </div>
+      </div>
+
+      <!-- 卡牌规范 -->
+      <div class="spec-card">
+        <div class="spec-card-title">卡牌 Cards</div>
+        <div class="spec-row">
+          <span class="spec-key">手牌尺寸</span>
+          <span class="spec-val">原100×145px / 缩51×74px</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">小丑牌尺寸</span>
+          <span class="spec-val">原140×200px / 缩71×102px</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">牌面背景</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:linear-gradient(135deg,#fff8e1,#f7e9c4)"></span>
+            #fff8e1 → #f7e9c4
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">牌边颜色</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:#1a0f24"></span>
+            #1a0f24 · 2px
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">红色花色</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:#e63946"></span>
+            #e63946 · ♥♦
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">黑色花色</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:#1a0f24"></span>
+            #1a0f24 · ♠♣
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">稀有度 — common</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:#6cb4d3"></span>
+            inset 3px #6cb4d3
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">稀有度 — rare</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:#e34b6f"></span>
+            inset 3px #e34b6f
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">稀有度 — legend</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:#b577ff"></span>
+            inset 3px #b577ff
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">选中偏移</span>
+          <span class="spec-val">translateY(-28px) · 缩后14px</span>
+        </div>
+      </div>
+
+      <!-- 面板 & 颜色规范 -->
+      <div class="spec-card">
+        <div class="spec-card-title">面板 &amp; 颜色系统</div>
+        <div class="spec-row">
+          <span class="spec-key">侧边栏背景</span>
+          <span class="spec-val">rgba(10,16,48,0.85)</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">面板背景</span>
+          <span class="spec-val">rgba(26,40,88,0.6)</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">面板边框</span>
+          <span class="spec-val">rgba(74,107,255,0.15)</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">侧栏宽度</span>
+          <span class="spec-val">原280px / 缩143px</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">Chips 色</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:linear-gradient(135deg,#4dd6ff,#2196f3)"></span>
+            #4dd6ff → #2196f3
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">Mult 色</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:linear-gradient(135deg,#ff8844,#ff3344)"></span>
+            #ff8844 → #ff3344
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">Gold 色</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:#ffc857"></span>
+            #ffc857
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">Round Score</span>
+          <span class="spec-val">
+            <span class="spec-swatch" style="background:#ff4d4d"></span>
+            VT323 · #ff4d4d · 原42px
+          </span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">缩放比例</span>
+          <span class="spec-val">scale(0.51) · 原点 top-left</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">原始画布</span>
+          <span class="spec-val">1280 × 760px</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">缩放后</span>
+          <span class="spec-val">652.8 × 387.6px</span>
+        </div>
+      </div>
+
+    </div><!-- /spec-grid -->
+
+    <!-- 安全区图例 -->
+    <div class="legend-row">
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:rgba(255,60,60,0.4);border:1.5px solid rgba(255,80,80,0.7)"></div>
+        左侧安全区 47px（刘海 / Camera）
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:rgba(255,60,60,0.2);border:1.5px solid rgba(255,80,80,0.4)"></div>
+        右侧安全区 44px
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:rgba(40,200,100,0.4);border:1.5px solid rgba(60,220,110,0.7)"></div>
+        底部 Home Indicator 21px
+      </div>
+      <div class="legend-item" style="margin-left:auto;color:rgba(255,255,255,0.35);font-size:11px;">
+        安全区仅为标注层，不影响实际游戏内容布局
+      </div>
+    </div>
+
+  </div><!-- /spec-section -->
+
+</div><!-- /page-wrapper -->
+
+</body>
+</html>

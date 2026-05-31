@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>第 2 轮 · PRD · 小丑牌跨端适配（产品需求文档）</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --line: #e3e0d8;
+    --gold: #b8860b;
+    --gold-bg: #fff8dc;
+    --purple: #5b3a8e;
+    --purple-bg: #f3eefa;
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --green: #15803d;
+    --green-bg: #f0fdf4;
+    --blue: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --code-bg: #f4f1ea;
+    --code-border: #d9d2c0;
+    --orange: #c2410c;
+    --orange-bg: #fff7ed;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 15px; line-height: 1.7; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 56px 32px 120px; }
+
+  .doc-meta {
+    background: var(--purple-bg);
+    border: 1px solid var(--purple);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 32px;
+    font-size: 13px;
+    color: var(--purple);
+  }
+  .doc-meta strong { color: var(--purple); }
+
+  h1 { font-size: 32px; text-align: center; margin: 0 0 8px; letter-spacing: -0.5px; }
+  .subtitle { text-align: center; color: var(--muted); margin-bottom: 12px; font-size: 15px; }
+  .meta { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+  h2 { font-size: 22px; margin-top: 56px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--purple); color: var(--purple); }
+  h3 { font-size: 17px; margin-top: 32px; margin-bottom: 12px; color: var(--ink); }
+  h4 { font-size: 15px; margin-top: 20px; margin-bottom: 8px; color: var(--purple); }
+  p { margin: 12px 0; }
+  ul, ol { padding-left: 24px; margin: 12px 0; }
+  li { margin: 6px 0; }
+  code { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 4px; padding: 1px 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--purple); }
+  pre { background: var(--code-bg); border: 1px solid var(--code-border); border-left: 4px solid var(--purple); border-radius: 6px; padding: 16px 18px; overflow-x: auto; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; border: none; padding: 0; color: var(--ink); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+  .callout { border-left: 4px solid; border-radius: 4px; padding: 12px 16px; margin: 16px 0; background: #fff; }
+  .callout.tip { border-color: var(--blue); background: var(--blue-bg); }
+  .callout.warn { border-color: var(--red); background: var(--red-bg); }
+  .callout.win { border-color: var(--green); background: var(--green-bg); }
+  .callout.gold { border-color: var(--gold); background: var(--gold-bg); }
+  .callout.orange { border-color: var(--orange); background: var(--orange-bg); }
+  .callout strong { display: block; margin-bottom: 4px; }
+  .lock { display: inline-block; background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold); border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px; vertical-align: middle; margin-left: 6px; }
+  .done { display: inline-block; background: var(--green-bg); color: var(--green); border: 1px solid var(--green); border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px; vertical-align: middle; margin-left: 6px; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding-left: 28px; position: relative; margin: 8px 0; }
+  .checklist li::before { content: '☐'; position: absolute; left: 8px; color: var(--purple); font-weight: 700; }
+  .checklist li.done-item::before { content: '☑'; color: var(--green); }
+  hr { border: none; border-top: 1px dashed var(--line); margin: 48px 0; }
+  .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .module-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--purple);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .module-card h3 { margin-top: 0; color: var(--purple); }
+  .platform-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 2px 3px 2px 0;
+  }
+  .badge-android { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+  .badge-ios { background: #fce4ec; color: #880e4f; border: 1px solid #f48fb1; }
+  .badge-mac { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+  .badge-win { background: #e8eaf6; color: #283593; border: 1px solid #9fa8da; }
+  .badge-web { background: var(--gold-bg); color: var(--gold); border: 1px solid #f6d860; }
+  .priority-p0 { display: inline-block; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; vertical-align: middle; margin-left: 4px; }
+  .priority-p1 { display: inline-block; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; vertical-align: middle; margin-left: 4px; }
+  .priority-p2 { display: inline-block; background: #f0fdf4; color: #166534; border: 1px solid #86efac; border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; vertical-align: middle; margin-left: 4px; }
+  .section-divider { border: none; border-top: 2px solid var(--line); margin: 40px 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="doc-meta">
+  <strong>产品经理 AI 同事产物</strong>
+  本文档描述「做什么」而非「怎么做」。技术实施细节（Tauri 配置、平台打包命令、原生 API 调用）由全栈工程师 AI 同事在「实施指引」环节决定。
+  <br><br>
+  <strong>配套文档</strong>：<code>01-第1轮-PRD-小丑牌核心循环.html</code>（第 1 轮产品需求）&nbsp;·&nbsp;<code>01-第1轮-DESIGN-小丑牌核心循环.html</code>（设计规范）
+  <br><br>
+  <strong>本轮范围说明</strong>：本轮<b>不实施 Tauri 框架搭建</b>，仅明确「框架搭好后 UI 层需要做什么」。框架搭建与打包流程归入后续轮次。
+</div>
+
+<h1>第 2 轮 · PRD · 小丑牌跨端适配</h1>
+<p class="subtitle">Tauri 五端打包的 UI 层适配需求 —— Android / iOS / macOS / Windows / Web</p>
+<p class="meta">课程版本：B2 · 第 2 轮 / 共 6 轮 · 文档版本：v1 · 仅改 UI，不动游戏逻辑</p>
+
+<div class="callout gold">
+  <strong>核心约束（必读，贯穿全文）</strong>
+  <ol style="margin: 8px 0 0; padding-left: 20px;">
+    <li><b>只改 UI，不动游戏逻辑</b>：所有牌型识别、计分公式、状态机、Joker 效果、AI 出牌启发式——一行都不动。</li>
+    <li><b>强制横屏，不做竖屏适配</b>：五端全部锁定横屏。竖屏时显示挡板提示"请旋转屏幕"，游戏本体不渲染。</li>
+    <li><b>保留网页版兼容</b>：原 <code>index.html</code> 在浏览器直接访问的体验不能劣化，Tauri 专属逻辑必须做平台判断隔离。</li>
+    <li><b>本轮不实施 Tauri 框架</b>：本文档是"需求锁定"，不是"实施指引"。</li>
+  </ol>
+</div>
+
+<!-- ============================= 一、项目概述 ============================= -->
+<h2>一、项目概述</h2>
+
+<h3>1.1 背景</h3>
+<p>小丑牌（Balatro 同人网页版）已完成第 1 轮：核心游戏循环 + 4 类动效 + 设置面板 + AI 出牌，技术栈为 Vue 3 CDN + GSAP，纯单文件 <code>index.html</code>（约 2100 行），部署在 GitHub Pages。</p>
+<p>第 2 轮目标：为后续 Tauri 打包做 UI 层准备——明确五端各自需要哪些 UI 适配，确保打包后在各平台的视觉与交互质量达到"可玩"标准。</p>
+
+<h3>1.2 目标</h3>
+<ul>
+  <li>明确五端（Android、iOS、macOS、Windows、Web）的 UI 差异点和适配要求</li>
+  <li>定义强制横屏锁定在各端的实现方式（需求层，不写代码）</li>
+  <li>定义安全区、触控、DPI、状态栏、窗口尺寸等适配规格</li>
+  <li>明确哪些已完成（第 1 轮产出），哪些是本轮新增需求，哪些不在本轮范围</li>
+</ul>
+
+<h3>1.3 本轮范围</h3>
+<table>
+  <tr><th>类别</th><th>具体内容</th><th>状态</th></tr>
+  <tr><td>横屏强制锁定</td><td>各平台的横屏声明/API/CSS 方案</td><td>本轮定义需求</td></tr>
+  <tr><td>竖屏挡板</td><td>显示"请旋转屏幕"提示，第 1 轮已做</td><td>确认保留</td></tr>
+  <tr><td>安全区适配</td><td>刘海屏、Home 键区域、状态栏遮挡</td><td>本轮定义需求</td></tr>
+  <tr><td>触控优化</td><td>移动端点击区域、滑动手势、长按</td><td>本轮定义需求</td></tr>
+  <tr><td>字体与 DPI 适配</td><td>各平台屏幕密度差异下的字体与元素缩放</td><td>本轮定义需求</td></tr>
+  <tr><td>平台状态栏处理</td><td>沉浸式/全屏模式，隐藏系统 UI</td><td>本轮定义需求</td></tr>
+  <tr><td>窗口尺寸适配</td><td>桌面端可调窗口的最小尺寸、缩放响应</td><td>本轮定义需求</td></tr>
+  <tr><td>游戏逻辑</td><td>牌型、计分、状态机、Joker</td><td>不动，第 1 轮锁定</td></tr>
+  <tr><td>Tauri 框架搭建与打包</td><td>安装、配置、CI/CD 打包流水线</td><td>不在本轮，归后续轮次</td></tr>
+</table>
+
+<!-- ============================= 二、目标平台矩阵 ============================= -->
+<h2>二、目标平台矩阵</h2>
+
+<div class="callout tip">
+  <strong>阅读说明</strong>
+  以下矩阵列出各平台的核心差异点。"适配要求"列描述 UI 层需要做什么，不描述实现方式。
+</div>
+
+<table>
+  <tr>
+    <th style="width:12%">平台</th>
+    <th style="width:18%">典型设备/系统版本</th>
+    <th style="width:20%">核心差异点</th>
+    <th style="width:25%">UI 适配要求</th>
+    <th style="width:25%">已完成 / 待做</th>
+  </tr>
+  <tr>
+    <td><span class="platform-badge badge-android">Android</span></td>
+    <td>Android 8+，主流 360–430dp 宽横屏</td>
+    <td>
+      刘海屏、打孔屏<br>
+      底部导航手势条<br>
+      状态栏覆盖游戏区<br>
+      触屏无鼠标 hover<br>
+      DPI 1.5×–3×
+    </td>
+    <td>
+      强制 Landscape 锁定<br>
+      安全区内边距（左右 notch、下方手势条）<br>
+      沉浸式全屏模式<br>
+      触控点击区域 ≥ 44dp<br>
+      DPI 感知缩放
+    </td>
+    <td>
+      竖屏挡板：<span class="done">已完成</span><br>
+      强制横屏 CSS：<span class="done">已完成（第 1 轮）</span><br>
+      安全区 CSS 变量：待做<br>
+      沉浸式全屏声明：待做<br>
+      触控区域校验：待做
+    </td>
+  </tr>
+  <tr>
+    <td><span class="platform-badge badge-ios">iOS</span></td>
+    <td>iOS 15+，iPhone 12–16 系列 / iPad</td>
+    <td>
+      Dynamic Island / 刘海<br>
+      Home Indicator（底部小横条）<br>
+      Safari 安全区行为与 App 内 WebView 不同<br>
+      触屏与 Apple Pencil<br>
+      Retina 2×–3×
+    </td>
+    <td>
+      强制 Landscape 声明（Info.plist 级）<br>
+      <code>env(safe-area-inset-*)</code> 适配刘海与 Home Indicator<br>
+      全屏模式隐藏状态栏<br>
+      触控点击区域 ≥ 44pt<br>
+      Retina 感知缩放
+    </td>
+    <td>
+      竖屏挡板：<span class="done">已完成</span><br>
+      强制横屏 CSS：<span class="done">已完成（第 1 轮）</span><br>
+      <code>safe-area-inset</code> CSS：待做<br>
+      Info.plist 横屏声明：待做（Tauri 配置）<br>
+      全屏状态栏隐藏：待做
+    </td>
+  </tr>
+  <tr>
+    <td><span class="platform-badge badge-mac">macOS</span></td>
+    <td>macOS 12+，Retina 2× / 非 Retina</td>
+    <td>
+      鼠标操作为主（hover 态需要）<br>
+      窗口可自由调整大小<br>
+      Retina 与非 Retina 共存<br>
+      无触屏（Magic Trackpad 手势不同）<br>
+      Menu bar 高度占顶部
+    </td>
+    <td>
+      定义最小窗口尺寸（宽 × 高）<br>
+      定义推荐启动尺寸<br>
+      窗口缩小时游戏区整体等比缩放（不裁切）<br>
+      hover 样式保留（桌面端交互）<br>
+      无需安全区适配
+    </td>
+    <td>
+      hover 样式：<span class="done">已完成（现有 CSS）</span><br>
+      窗口最小尺寸约束：待做<br>
+      窗口缩放等比响应：待做<br>
+      Tauri 窗口配置：待做（Tauri 配置）
+    </td>
+  </tr>
+  <tr>
+    <td><span class="platform-badge badge-win">Windows</span></td>
+    <td>Windows 10/11，1080p / 1440p 常见</td>
+    <td>
+      鼠标操作为主<br>
+      窗口可调整大小<br>
+      DPI 缩放（100%–200%）<br>
+      任务栏占底部或侧边<br>
+      触屏设备（Surface 等）也有
+    </td>
+    <td>
+      定义最小窗口尺寸<br>
+      定义推荐启动尺寸<br>
+      窗口缩放等比响应（与 macOS 一致）<br>
+      DPI 感知缩放（Windows 系统 DPI 缩放）<br>
+      hover 样式保留
+    </td>
+    <td>
+      hover 样式：<span class="done">已完成</span><br>
+      窗口最小尺寸约束：待做<br>
+      窗口缩放等比响应：待做<br>
+      Tauri 窗口配置：待做（Tauri 配置）
+    </td>
+  </tr>
+  <tr>
+    <td><span class="platform-badge badge-web">Web</span></td>
+    <td>Chrome/Safari/Firefox，桌面 + 移动浏览器</td>
+    <td>
+      已部署 GitHub Pages<br>
+      移动端 Safari 底部工具栏遮挡<br>
+      URL 栏占用高度<br>
+      触屏与鼠标混合
+    </td>
+    <td>
+      保持现有体验不劣化<br>
+      移动端浏览器安全区补丁（不如 App 精确，尽力）<br>
+      不依赖 Tauri API 的任何新逻辑
+    </td>
+    <td>
+      现有横屏适配：<span class="done">已完成</span><br>
+      竖屏挡板：<span class="done">已完成</span><br>
+      平台判断隔离（Tauri API fallback）：待做
+    </td>
+  </tr>
+</table>
+
+<!-- ============================= 三、核心设计原则 ============================= -->
+<h2>三、核心设计原则</h2>
+
+<div class="module-card">
+  <h3>P1 · 强制横屏，不做竖屏适配</h3>
+  <p>游戏仅支持横屏布局。五端全部通过各自的平台机制锁定横屏方向。竖屏状态下，游戏内容不渲染，显示竖屏挡板（已在第 1 轮完成）。</p>
+  <p><b>决策依据</b>：Balatro 原作是横屏游戏，现有 UI 布局（左 sidebar + 右三段式主区）为横屏设计，强行适配竖屏需要重新布局，属于游戏 UI 重构，超出本轮范围。</p>
+</div>
+
+<div class="module-card">
+  <h3>P2 · 只改 UI，不动游戏逻辑</h3>
+  <p>以下内容在本轮任何情况下都不允许修改：</p>
+  <ul>
+    <li>牌型识别逻辑（<code>getHandRank</code> 等函数）</li>
+    <li>计分公式（chips / mult 计算链）</li>
+    <li>游戏状态机（playing / shop / won / lost）</li>
+    <li>Joker 效果定义与触发顺序</li>
+    <li>AI 出牌启发式枚举逻辑</li>
+    <li>商店随机化逻辑</li>
+  </ul>
+</div>
+
+<div class="module-card">
+  <h3>P3 · 网页版兼容保底</h3>
+  <p>所有新增 UI 适配代码必须满足：</p>
+  <ul>
+    <li>Tauri 专属 API（如 Tauri JS API、原生状态栏控制）必须用 <code>window.__TAURI__</code> 存在性判断包裹，Web 环境不触发</li>
+    <li>CSS 安全区变量（<code>env(safe-area-inset-*)</code>）在不支持的浏览器下优雅降级为 0</li>
+    <li>GitHub Pages 部署的 Web 版体验不因本轮改动劣化</li>
+  </ul>
+</div>
+
+<div class="module-card">
+  <h3>P4 · 适配粒度：UI 感知，不做原生控件重写</h3>
+  <p>本轮适配停留在"CSS + Tauri 配置层"，不涉及引入原生 UI 组件库、重写渲染引擎或大幅重构 HTML 结构。目标是让现有的 Vue 3 单文件在各端"看起来对、摸起来顺"，而不是"重做一次 App"。</p>
+</div>
+
+<!-- ============================= 四、功能需求 ============================= -->
+<h2>四、功能需求</h2>
+
+<!-- F1 -->
+<div class="module-card">
+  <h3>F1 · 强制横屏锁定 <span class="priority-p0">P0</span></h3>
+
+  <p>各平台实现方式（需求层描述，技术方案由工程师决定）：</p>
+
+  <table>
+    <tr><th style="width:18%">平台</th><th>需求描述</th><th style="width:28%">期望结果</th></tr>
+    <tr>
+      <td><span class="platform-badge badge-android">Android</span></td>
+      <td>在 Tauri 的 Android 配置（<code>AndroidManifest.xml</code>）中声明 Activity 的 <code>screenOrientation</code> 为 <code>landscape</code> 或 <code>sensorLandscape</code></td>
+      <td>用户无论如何旋转设备，App 始终保持横向显示，系统不允许自动旋转</td>
+    </tr>
+    <tr>
+      <td><span class="platform-badge badge-ios">iOS</span></td>
+      <td>在 Tauri 的 iOS 配置（<code>Info.plist</code>）中设置 <code>UISupportedInterfaceOrientations</code> 仅包含 Landscape Left / Landscape Right</td>
+      <td>App 始终横屏，竖握手机时系统层面不旋转 UI</td>
+    </tr>
+    <tr>
+      <td><span class="platform-badge badge-mac">macOS</span></td>
+      <td>桌面端无方向锁定概念，窗口横向布局即可。在 Tauri 配置中设置窗口初始宽度 > 高度（横向比例）</td>
+      <td>启动时窗口为横向，用户手动拖拽为竖向时，游戏区仍按横屏布局渲染（不做竖屏特殊处理）</td>
+    </tr>
+    <tr>
+      <td><span class="platform-badge badge-win">Windows</span></td>
+      <td>与 macOS 一致，Tauri 配置窗口初始横向比例</td>
+      <td>同上</td>
+    </tr>
+    <tr>
+      <td><span class="platform-badge badge-web">Web</span></td>
+      <td>已通过 CSS <code>@media (orientation: portrait)</code> + 竖屏挡板实现（第 1 轮已完成）</td>
+      <td>竖屏时显示挡板，横屏时正常渲染</td>
+    </tr>
+  </table>
+</div>
+
+<!-- F2 -->
+<div class="module-card">
+  <h3>F2 · 竖屏挡板 <span class="done">已完成，确认保留</span> <span class="priority-p0">P0</span></h3>
+
+  <p>第 1 轮已完成以下内容，本轮确认保留，无需修改：</p>
+  <ul>
+    <li>CSS <code>@media (orientation: portrait)</code> 检测竖屏</li>
+    <li>竖屏时覆盖层显示提示文字（"请旋转屏幕以横屏游玩"或类似措辞）</li>
+    <li>游戏区内容在竖屏时不渲染或不可交互</li>
+  </ul>
+
+  <div class="callout win">
+    <strong>确认事项</strong>
+    在 Tauri 封装的 App 内，WebView 同样支持 CSS media query，竖屏挡板逻辑无需改动。但需验证 Android/iOS 在 Tauri WebView 内 orientation 媒体查询的行为与普通浏览器一致。若存在差异，由工程师阶段处理。
+  </div>
+</div>
+
+<!-- F3 -->
+<div class="module-card">
+  <h3>F3 · 安全区适配（刘海屏、Home Indicator） <span class="priority-p0">P0</span></h3>
+
+  <h4>3.1 适用平台</h4>
+  <p>
+    <span class="platform-badge badge-android">Android</span> 刘海屏（notch）、打孔屏、底部手势条<br>
+    <span class="platform-badge badge-ios">iOS</span> Dynamic Island / 刘海（iPhone X 及以后）、Home Indicator（底部横条）
+  </p>
+
+  <h4>3.2 需求描述</h4>
+  <p>游戏 UI 的所有可交互元素（按钮、手牌、Joker 卡、sidebar 面板）必须落在安全区内，不被刘海/打孔/Home Indicator 遮挡。</p>
+
+  <table>
+    <tr><th>区域</th><th>风险元素（可能被遮挡）</th><th>适配要求</th></tr>
+    <tr>
+      <td>左侧（Android notch 可能出现在横屏左侧）</td>
+      <td>左 sidebar 顶部 logo、盲注面板</td>
+      <td>左 padding 增加 <code>env(safe-area-inset-left)</code>，确保内容不进入刘海区域</td>
+    </tr>
+    <tr>
+      <td>右侧（部分机型摄像头在右侧）</td>
+      <td>右主区手牌操作按钮、牌堆</td>
+      <td>右 padding 增加 <code>env(safe-area-inset-right)</code></td>
+    </tr>
+    <tr>
+      <td>底部（iOS Home Indicator / Android 手势条）</td>
+      <td>底部出牌/弃牌按钮行</td>
+      <td>底部 padding 增加 <code>env(safe-area-inset-bottom)</code>，按钮不被手势条覆盖</td>
+    </tr>
+    <tr>
+      <td>顶部（Android 状态栏）</td>
+      <td>右上角设置按钮 ⚙️、Joker 区标题</td>
+      <td>顶部 padding 增加 <code>env(safe-area-inset-top)</code>，或通过全屏模式消除状态栏（见 F6）</td>
+    </tr>
+  </table>
+
+  <h4>3.3 实现方式说明（需求层）</h4>
+  <p>CSS 层使用 <code>padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)</code> 应用于顶层容器，或针对各区域单独注入。具体哪个 DOM 元素挂这个 padding 由工程师决定。</p>
+  <p>对于不支持 <code>env()</code> 的环境（旧浏览器、桌面端），安全区变量自动降级为 0，不影响显示。</p>
+  <p>HTML <code>&lt;meta name="viewport"&gt;</code> 需增加 <code>viewport-fit=cover</code>，否则 iOS Safari / WKWebView 不会暴露安全区 CSS 变量。</p>
+
+  <div class="callout warn">
+    <strong>注意</strong>
+    安全区 padding 不能简单加在 <code>body</code> 上了事。现有布局是 <code>100vh 全屏</code> + <code>overflow: hidden</code>，需要在不破坏原有 100vh 充满效果的前提下注入安全区。工程师阶段需要验证加了 safe-area padding 后整体布局不错位、不产生滚动条。
+  </div>
+</div>
+
+<!-- F4 -->
+<div class="module-card">
+  <h3>F4 · 触控优化 <span class="priority-p0">P0</span>（移动端）</h3>
+
+  <p>适用平台：<span class="platform-badge badge-android">Android</span> <span class="platform-badge badge-ios">iOS</span></p>
+
+  <h4>4.1 点击区域最小尺寸</h4>
+  <table>
+    <tr><th>元素</th><th>当前状态</th><th>要求</th></tr>
+    <tr><td>手牌（扑克牌）</td><td>100×145px（第 1 轮设计规范）</td><td>已满足，确认保留</td></tr>
+    <tr><td>Joker 卡</td><td>140×200px</td><td>已满足，确认保留</td></tr>
+    <tr><td>出牌 / 弃牌按钮</td><td>min-height: 52px</td><td>已满足，确认保留</td></tr>
+    <tr><td>右上角设置按钮 ⚙️</td><td>44×44px</td><td>已满足，确认保留</td></tr>
+    <tr><td>排序按钮（按点 / 按花）</td><td>与主按钮同行，高度 52px</td><td>已满足，确认保留</td></tr>
+    <tr><td>商店购买按钮</td><td>min-height 44px（第 1 轮规范）</td><td>已满足，确认保留</td></tr>
+    <tr><td>商店跳过按钮</td><td>≥ 160px 宽</td><td>已满足，确认保留</td></tr>
+  </table>
+
+  <p>结论：现有按钮规范已满足移动端 44pt/dp 最小点击区域要求，本轮无需调整按钮尺寸。</p>
+
+  <h4>4.2 消除移动端点击延迟</h4>
+  <p>移动端浏览器（及 Tauri WebView）默认有 300ms 点击延迟。需在 CSS 中添加 <code>touch-action: manipulation</code> 到所有可交互元素，或全局应用到 <code>body</code>，消除点击延迟，使响应与桌面端一致。</p>
+
+  <h4>4.3 禁止不必要的触摸行为</h4>
+  <table>
+    <tr><th>行为</th><th>要求</th><th>原因</th></tr>
+    <tr><td>页面双指缩放</td><td>禁止（<code>user-scalable=no</code>）</td><td>游戏界面不是网页内容，缩放会破坏布局</td></tr>
+    <tr><td>页面级滚动（上下滑）</td><td>禁止（<code>overflow: hidden</code> 已设）</td><td>已在第 1 轮处理，确认保留</td></tr>
+    <tr><td>长按弹出系统菜单（文字选中、图片保存）</td><td>禁止</td><td>长按扑克牌不应弹出"复制"、"查看图片"等系统菜单，干扰游戏操作</td></tr>
+    <tr><td>橡皮筋弹性滚动（iOS overscroll）</td><td>禁止</td><td>避免游戏区域被拉扯产生空白</td></tr>
+  </table>
+
+  <h4>4.4 手势说明</h4>
+  <p>本轮游戏仅需"点击"操作（选牌、点按钮）。<b>不引入滑动手势、拖拽手势、捏合手势</b>——这属于玩法层改动，超出本轮范围。</p>
+</div>
+
+<!-- F5 -->
+<div class="module-card">
+  <h3>F5 · 字体与 DPI 适配 <span class="priority-p1">P1</span></h3>
+
+  <h4>5.1 各平台屏幕密度概览</h4>
+  <table>
+    <tr><th>平台</th><th>典型 DPI/PPI</th><th>逻辑像素倍数（devicePixelRatio）</th></tr>
+    <tr><td><span class="platform-badge badge-android">Android</span></td><td>240–560 DPI</td><td>1.5×（hdpi）/ 2×（xhdpi）/ 3×（xxhdpi）</td></tr>
+    <tr><td><span class="platform-badge badge-ios">iOS</span></td><td>326–460 PPI</td><td>2×（Retina）/ 3×（Super Retina XDR）</td></tr>
+    <tr><td><span class="platform-badge badge-mac">macOS</span></td><td>72–220 PPI</td><td>1×（非 Retina）/ 2×（Retina）</td></tr>
+    <tr><td><span class="platform-badge badge-win">Windows</span></td><td>96–192 DPI</td><td>1×（100%）/ 1.25–2×（缩放设置）</td></tr>
+    <tr><td><span class="platform-badge badge-web">Web</span></td><td>设备决定</td><td>浏览器自动处理</td></tr>
+  </table>
+
+  <h4>5.2 字体渲染要求</h4>
+  <p>现有字体使用规则（Press Start 2P / VT323 / Inter + PingFang SC）在第 1 轮已锁定，保持不变。</p>
+  <p>DPI 适配要求：</p>
+  <ul>
+    <li>字体单位统一使用 <code>px</code>（当前实现），CSS 层由浏览器/WebView 自动处理 DPI 缩放，无需手动换算</li>
+    <li>Tauri WebView 在各平台启用 <code>viewport</code> 元标签的 DPI 感知（<code>width=device-width, initial-scale=1</code>，已在 <code>index.html</code> 中配置），确认保留</li>
+    <li>Google Fonts 加载（Press Start 2P / VT323 / Inter）：App 版需确认在无网络时的降级字体（<code>system-ui</code> 作为 fallback）不破坏布局</li>
+  </ul>
+
+  <h4>5.3 元素缩放策略</h4>
+  <p>游戏 UI 使用固定 px 尺寸 + 动态缩放 CSS（第 1 轮已实现 <code>--scale</code> 动态缩放变量）。桌面端窗口缩小时，整体 <code>scale()</code> 等比缩放，不做响应式重排。这个策略在各端均适用，无需为 DPI 单独设计另一套缩放逻辑。</p>
+
+  <div class="callout tip">
+    <strong>关于离线字体</strong>
+    若后续要求 App 完全离线可用，需将三种字体文件打包进 Tauri App 资源。本轮仅提出需求，离线字体打包由工程师在 Tauri 框架配置阶段处理。
+  </div>
+</div>
+
+<!-- F6 -->
+<div class="module-card">
+  <h3>F6 · 平台原生状态栏处理 <span class="priority-p0">P0</span>（移动端）</h3>
+
+  <p>适用平台：<span class="platform-badge badge-android">Android</span> <span class="platform-badge badge-ios">iOS</span></p>
+
+  <h4>6.1 需求目标</h4>
+  <p>游戏进入后，系统状态栏（显示时间、电量、信号等）应隐藏或沉浸式叠加，游戏 UI 占据全部屏幕面积，不留黑条/灰条。</p>
+
+  <h4>6.2 各平台要求</h4>
+  <table>
+    <tr><th>平台</th><th>要求</th><th>说明</th></tr>
+    <tr>
+      <td><span class="platform-badge badge-android">Android</span></td>
+      <td>启用 Immersive Mode（沉浸式全屏），隐藏状态栏和导航栏</td>
+      <td>通过 Tauri Android 插件或 <code>AndroidManifest</code> 配置。用户从屏幕边缘下滑可临时呼出系统 UI，离开焦点后自动收回（Sticky Immersive）</td>
+    </tr>
+    <tr>
+      <td><span class="platform-badge badge-ios">iOS</span></td>
+      <td>隐藏状态栏（Status Bar Hidden），或设为 Overlay 叠加模式（状态栏透明叠在游戏内容上）</td>
+      <td>通过 <code>Info.plist</code> 的 <code>UIStatusBarHidden</code> 或 Tauri iOS 插件配置。全屏游戏通常选择完全隐藏</td>
+    </tr>
+  </table>
+
+  <h4>6.3 与安全区的关系</h4>
+  <p>若启用全屏隐藏状态栏，<code>env(safe-area-inset-top)</code> 值会变为 0（状态栏不再占空间），但刘海/Dynamic Island 区域的 <code>safe-area-inset-left</code> / <code>safe-area-inset-right</code> 在横屏下仍有值。工程师需注意两者联动。</p>
+</div>
+
+<!-- F7 -->
+<div class="module-card">
+  <h3>F7 · 窗口尺寸适配（桌面端） <span class="priority-p1">P1</span></h3>
+
+  <p>适用平台：<span class="platform-badge badge-mac">macOS</span> <span class="platform-badge badge-win">Windows</span></p>
+
+  <h4>7.1 最小窗口尺寸</h4>
+  <table>
+    <tr><th>参数</th><th>要求值</th><th>依据</th></tr>
+    <tr><td>最小宽度</td><td>1024px</td><td>现有 UI 8 张手牌并排（100px × 8 + gap 8px × 7 = 856px）+ 左 sidebar（280px 最小）共约 1136px；考虑整体缩放，以 1024px 为最小可用边界</td></tr>
+    <tr><td>最小高度</td><td>600px</td><td>三段式主区（230+auto+280）+ 部分边距，600px 以下 UI 开始严重压缩</td></tr>
+    <tr><td>推荐启动尺寸</td><td>1440 × 900px</td><td>16:10 横向比例，覆盖 MacBook Pro 13" 和 FHD 显示器</td></tr>
+  </table>
+
+  <h4>7.2 窗口缩放响应</h4>
+  <p>桌面端用户可能调整窗口大小。游戏 UI 应：</p>
+  <ul>
+    <li>窗口大于推荐尺寸时：游戏区居中显示，或等比放大填满（由工程师决定哪种方案，PRD 不强制）</li>
+    <li>窗口小于推荐尺寸但大于最小尺寸时：整体等比缩放（<code>scale()</code>），不裁切、不重排</li>
+    <li>窗口小于最小尺寸时：Tauri 配置层阻止进一步缩小（不允许用户拖到最小尺寸以下）</li>
+    <li>窗口宽度 < 高度时（极端竖向拖拽）：显示竖屏挡板（与移动端逻辑一致）</li>
+  </ul>
+
+  <h4>7.3 全屏模式（可选，P2）</h4>
+  <p>桌面端可通过 Tauri 提供"全屏游玩"按钮（菜单或快捷键），进入真全屏模式。这是 nice-to-have，本轮不做，记录到 P2 待办。</p>
+</div>
+
+<!-- ============================= 五、非功能需求 ============================= -->
+<h2>五、非功能需求</h2>
+
+<table>
+  <tr><th>类别</th><th>指标</th><th>目标值</th><th>说明</th></tr>
+  <tr>
+    <td>App 包体大小</td>
+    <td>Android APK 大小</td>
+    <td>≤ 30MB</td>
+    <td>Tauri 原生包体通常 5–15MB，加上 Web 资源（单文件 HTML + 字体）应能达到。若超出，考虑离线字体裁剪</td>
+  </tr>
+  <tr>
+    <td>App 包体大小</td>
+    <td>iOS IPA 大小</td>
+    <td>≤ 30MB</td>
+    <td>同上</td>
+  </tr>
+  <tr>
+    <td>App 包体大小</td>
+    <td>macOS .app 大小</td>
+    <td>≤ 20MB</td>
+    <td>Tauri macOS 包体本身较小</td>
+  </tr>
+  <tr>
+    <td>启动速度</td>
+    <td>冷启动到可交互时间</td>
+    <td>≤ 3 秒（移动端）/ ≤ 2 秒（桌面端）</td>
+    <td>单 HTML 文件资源加载快；主要瓶颈是 Google Fonts 网络加载，离线打包后更快</td>
+  </tr>
+  <tr>
+    <td>动效性能</td>
+    <td>出牌动画帧率</td>
+    <td>≥ 60fps（移动端达到即可，桌面端保证）</td>
+    <td>GSAP 动画；移动端 WebView 性能低于桌面端。若实测低于 60fps，可降到 30fps 不做强制要求</td>
+  </tr>
+  <tr>
+    <td>内存占用</td>
+    <td>运行时内存</td>
+    <td>≤ 200MB（移动端）</td>
+    <td>Vue 3 CDN + GSAP + 单 HTML；不含大型资源，内存占用预期较低</td>
+  </tr>
+  <tr>
+    <td>兼容性</td>
+    <td>最低系统版本</td>
+    <td>Android 8+ / iOS 15+ / macOS 12+ / Windows 10+</td>
+    <td>Tauri 2.x 的最低支持版本，与本项目对齐</td>
+  </tr>
+</table>
+
+<!-- ============================= 六、已完成项 ============================= -->
+<h2>六、已完成项（第 1 轮产出，本轮确认保留）</h2>
+
+<div class="callout win">
+  <strong>以下内容已在第 1 轮完成，本轮无需修改</strong>
+</div>
+
+<ul class="checklist">
+  <li class="done-item"><b>强制横屏 CSS</b>：通过 CSS 旋转变换强制横屏显示（第 1 轮移动端横屏 UI 适配已完成）</li>
+  <li class="done-item"><b>竖屏挡板</b>：<code>@media (orientation: portrait)</code> 检测，显示"请旋转屏幕"提示层</li>
+  <li class="done-item"><b>刘海屏安全区</b>：已引入 <code>env(safe-area-inset-*)</code> 和 <code>viewport-fit=cover</code>（第 1 轮已做基础适配）</li>
+  <li class="done-item"><b>动态缩放 CSS</b>：<code>--scale</code> 变量 + <code>scale()</code> 实现整体等比缩放，适应不同视口宽度</li>
+  <li class="done-item"><b>按钮最小点击区域</b>：所有按钮 min-height 52px，设置按钮 44×44px，符合移动端规范</li>
+  <li class="done-item"><b>hover 样式</b>：桌面端 hover 交互已实现（translateY + brightness），移动端不影响</li>
+  <li class="done-item"><b>100vh 全屏布局</b>：<code>overflow: hidden</code> 禁止页面级滚动</li>
+</ul>
+
+<div class="callout gold">
+  <strong>待验证事项</strong>
+  第 1 轮的安全区适配是否在 Tauri WebView 内与普通浏览器行为一致，需在 Tauri 框架搭建完成后做真机验收（见第八章验收清单）。
+</div>
+
+<!-- ============================= 七、不在本轮范围 ============================= -->
+<h2>七、不在本轮范围</h2>
+
+<div class="callout warn">
+  <strong>以下内容本轮一律不做</strong>
+</div>
+
+<table>
+  <tr><th>排除项</th><th>归属</th><th>理由</th></tr>
+  <tr><td>Tauri 框架安装与配置（<code>tauri.conf.json</code>、依赖安装、构建流水线）</td><td>后续轮次</td><td>本轮仅做 UI 需求定义；框架搭建是工程任务，不属于 UI 适配范畴</td></tr>
+  <tr><td>各平台打包与发布（APK 签名、iOS 证书、App Store 提交）</td><td>后续轮次</td><td>同上</td></tr>
+  <tr><td>游戏逻辑修改（牌型、计分、Joker、AI、状态机）</td><td>不做</td><td>本轮硬约束：只改 UI</td></tr>
+  <tr><td>竖屏游戏布局适配</td><td>不做</td><td>设计决策：游戏只做横屏</td></tr>
+  <tr><td>游戏手柄 / 键盘导航支持</td><td>不做</td><td>超出本轮范围，优先级低</td></tr>
+  <tr><td>推送通知、后台保活、深链接</td><td>不做</td><td>游戏类 App 暂不需要</td></tr>
+  <tr><td>App 内购买、广告 SDK</td><td>不做</td><td>课程项目，无商业化需求</td></tr>
+  <tr><td>多语言国际化（i18n）</td><td>不做</td><td>全中文，不需要多语言</td></tr>
+  <tr><td>桌面端全屏游玩按钮</td><td>P2，待后续</td><td>nice-to-have，本轮不做</td></tr>
+  <tr><td>GSAP 动效在低性能设备的降级策略</td><td>待后续</td><td>若实测 60fps 不达标再处理；本轮不预设降级</td></tr>
+  <tr><td>离线字体打包（Google Fonts 本地化）</td><td>待后续</td><td>Tauri 框架配置阶段处理</td></tr>
+</table>
+
+<!-- ============================= 八、验收标准 ============================= -->
+<h2>八、验收标准</h2>
+
+<div class="callout tip">
+  <strong>说明</strong>
+  以下验收清单在 Tauri 框架搭建完成、各平台 App 可运行后执行。本轮（UI 需求定义阶段）不可执行，记录在此供后续轮次使用。
+</div>
+
+<h3>8.1 Android 验收</h3>
+<ul class="checklist">
+  <li>安装 APK 后，App 图标正常显示</li>
+  <li>启动后自动横屏显示，系统不允许旋转为竖屏</li>
+  <li>竖握手机时（设备物理竖向），App 保持横屏，<b>不显示</b>竖屏挡板（因为系统已锁定横屏，CSS media query 不触发 portrait）</li>
+  <li>刘海屏 / 打孔屏设备：左侧 sidebar 内容不被摄像头遮挡</li>
+  <li>底部手势条区域：出牌/弃牌按钮不被手势条覆盖，按钮完整可点</li>
+  <li>系统状态栏隐藏（或沉浸叠加），游戏占满全屏</li>
+  <li>点击手牌、按钮无明显 300ms 延迟</li>
+  <li>长按手牌不弹出系统菜单（无"复制"、"粘贴"等）</li>
+  <li>上下滑动无页面弹性滚动效果</li>
+  <li>双指捏合无缩放效果</li>
+  <li>冷启动到可交互 ≤ 3 秒</li>
+  <li>APK 大小 ≤ 30MB</li>
+  <li>出牌动画流畅（主观可接受，以 30fps 为底线）</li>
+</ul>
+
+<h3>8.2 iOS 验收</h3>
+<ul class="checklist">
+  <li>App 启动后横屏显示，竖握手机时 App 保持横屏</li>
+  <li>iPhone 有刘海 / Dynamic Island：横屏时左侧 sidebar 内容不进入刘海遮挡区</li>
+  <li>底部 Home Indicator：出牌按钮不被覆盖</li>
+  <li>状态栏隐藏，游戏区占满屏幕</li>
+  <li>点击无延迟，长按无系统菜单</li>
+  <li>页面不可上下滑动（overscroll 禁止）</li>
+  <li>双指捏合无缩放</li>
+  <li>冷启动 ≤ 3 秒</li>
+  <li>IPA 大小 ≤ 30MB</li>
+</ul>
+
+<h3>8.3 macOS 验收</h3>
+<ul class="checklist">
+  <li>App 启动时窗口为横向（宽 > 高），默认尺寸约 1440×900</li>
+  <li>窗口不可缩小到 1024×600 以下（Tauri 阻止）</li>
+  <li>将窗口缩小到 1200×700：游戏 UI 整体等比缩小，不产生滚动条，不裁切内容</li>
+  <li>将窗口拖为极端竖向（宽 < 高）：显示竖屏挡板提示</li>
+  <li>hover 样式正常（按钮 hover 上移 + 高亮，Joker 卡 hover 有反馈）</li>
+  <li>Retina 显示器上字体清晰，无模糊</li>
+  <li>非 Retina 显示器（1× 外接显示器）上 UI 正常显示</li>
+  <li>冷启动 ≤ 2 秒</li>
+  <li>.app 大小 ≤ 20MB</li>
+</ul>
+
+<h3>8.4 Windows 验收</h3>
+<ul class="checklist">
+  <li>App 启动时窗口为横向，默认约 1440×900</li>
+  <li>窗口不可缩小到 1024×600 以下</li>
+  <li>缩小窗口：UI 等比缩放，不产生滚动条</li>
+  <li>极端竖向拖拽：显示竖屏挡板</li>
+  <li>系统 DPI 设为 125% / 150%：UI 不模糊，文字清晰</li>
+  <li>hover 样式正常</li>
+  <li>冷启动 ≤ 2 秒</li>
+</ul>
+
+<h3>8.5 Web（GitHub Pages）回归验收</h3>
+<ul class="checklist">
+  <li>Chrome 桌面：游戏正常可玩，体验与第 1 轮完成时一致</li>
+  <li>Safari 移动端横屏：游戏正常渲染，安全区适配有效</li>
+  <li>Safari 移动端竖屏：竖屏挡板正常显示</li>
+  <li>Tauri 相关 API（如有调用）在 Web 环境下不报错（fallback 正常）</li>
+  <li>新增的 CSS 安全区变量在桌面浏览器（不支持 <code>env()</code> 旧版）下降级为 0，布局不错位</li>
+</ul>
+
+<!-- ============================= 九、开放问题 ============================= -->
+<h2>九、开放问题</h2>
+
+<table>
+  <tr><th>#</th><th>问题</th><th>影响</th><th>决策时机</th></tr>
+  <tr>
+    <td>Q1</td>
+    <td>Android 横屏时，CSS <code>@media (orientation: portrait)</code> 是否在 Tauri WebView 内与普通浏览器行为完全一致？若 WebView 的 viewport 方向判断逻辑不同，竖屏挡板可能失效或误触发。</td>
+    <td>竖屏挡板逻辑是否需要补一层 JS 判断（<code>window.screen.orientation.type</code>）</td>
+    <td>Tauri 框架搭建完成后真机验证</td>
+  </tr>
+  <tr>
+    <td>Q2</td>
+    <td>Google Fonts 在 App 内是否需要离线打包？若 App 在无网络环境下使用，字体会 fallback 到系统字体（system-ui），Press Start 2P / VT323 的像素风格会完全消失。</td>
+    <td>是否在 Tauri 打包时内嵌字体文件（增加约 3–5MB 包体）</td>
+    <td>Tauri 框架配置阶段决定；本 PRD 倾向于内嵌，最终由团队决定</td>
+  </tr>
+  <tr>
+    <td>Q3</td>
+    <td>桌面端窗口大于推荐尺寸时（如 2560×1440 大显示器），游戏是居中固定尺寸还是等比放大充满？两种方案各有权衡：居中有空白边，放大可能导致超大字体视觉奇怪。</td>
+    <td>影响 CSS 缩放策略（max-scale 上限设多少）</td>
+    <td>Tauri 框架搭建后实测效果再定；暂定居中 + 最大 scale 1.5×</td>
+  </tr>
+  <tr>
+    <td>Q4</td>
+    <td>iOS App Store 提交需要 Apple 开发者账号（$99/年）。课程项目是否会真正提交 App Store，还是只出 IPA 文件供真机侧载？</td>
+    <td>影响 iOS 打包配置和证书要求</td>
+    <td>课程规划层决定，与 PRD 无关；工程师按实际情况处理</td>
+  </tr>
+  <tr>
+    <td>Q5</td>
+    <td>Android 沉浸式全屏模式（Sticky Immersive）下，用户从屏幕边缘下滑会临时呼出系统 UI，玩家误触的概率较高。是否需要额外的防误触处理？</td>
+    <td>用户体验层；不影响游戏逻辑</td>
+    <td>实测后决定；本轮暂不处理</td>
+  </tr>
+</table>
+
+<hr>
+
+<p style="text-align:center;color:var(--muted);font-size:13px;">
+本 PRD 由产品经理 AI 同事产出，描述「做什么」而非「怎么做」。Tauri 框架安装配置、各平台打包命令、原生 API 具体调用方式，由全栈工程师 AI 同事在实施指引环节决定。
+</p>
+
+<div class="footer">
+  小丑牌教学 · B2 · 第 2 轮 PRD · v1（跨端 UI 适配需求定义，Tauri 框架搭建不在本轮）
+</div>
+
+</div>
+</body>
+</html>

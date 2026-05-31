@@ -1,0 +1,1553 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>第 2 轮 · DESIGN · 小丑牌跨端适配（移动端横屏）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     小丑牌跨端适配设计稿 · 移动端横屏版
+     视觉风格与第 1 轮 DESIGN 保持一致：深蓝水纹 + Balatro 官方风
+     ============================================================ */
+
+  :root {
+    --bg-deep:    #0a1438;
+    --bg-water:   #1a2858;
+    --bg-glow:    #2d4080;
+    --sb-blue:    #4a6bff;
+    --sb-blue-dk: #2d4080;
+    --sb-panel:   #1a2858;
+    --inset:      #050818;
+
+    --chips-from: #4dd6ff;
+    --chips-to:   #2196f3;
+    --mult-from:  #ff8844;
+    --mult-to:    #ff3344;
+
+    --gold:       #ffc857;
+    --money:      #ffb030;
+    --btn-red:    #ff3838;
+    --btn-orange: #ff8800;
+    --btn-blue:   #4a6bff;
+    --btn-green:  #62d18b;
+    --btn-discard:#ff5544;
+
+    --text:       #ffffff;
+    --text-dim:   #c9d2e8;
+    --muted:      #8a9bbf;
+
+    --paper-1:    #fff8e1;
+    --paper-2:    #f7e9c4;
+    --card-edge:  #1a0f24;
+
+    --pixel:   'Press Start 2P', monospace;
+    --display: 'VT323', monospace;
+    --sans:    'Inter', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    color: var(--text);
+    font-family: var(--sans);
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45,64,128,.6), transparent 70%),
+      radial-gradient(ellipse 120% 80% at 30% 70%, rgba(74,107,255,.15), transparent 60%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0 2px, transparent 2px 4px),
+      linear-gradient(135deg, #0a1438 0%, #1a2858 50%, #0a1438 100%);
+    background-attachment: fixed;
+  }
+
+  /* ===== Doc Bar ===== */
+  .doc-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(5,8,24,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(74,107,255,.3);
+    padding: 12px 28px;
+    display: flex; gap: 18px; align-items: center;
+  }
+  .doc-bar h1 {
+    font-family: var(--pixel);
+    font-size: 11px;
+    margin: 0;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+  .doc-bar .sub { color: var(--muted); font-size: 12px; }
+
+  .container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+    display: flex; flex-direction: column;
+    gap: 48px;
+  }
+
+  /* ===== Section ===== */
+  .section {
+    background: linear-gradient(180deg, #111e44, #0a1438);
+    border: 1px solid rgba(74,107,255,.3);
+    border-radius: 18px;
+    box-shadow: 0 12px 24px rgba(0,0,0,.5);
+    overflow: hidden;
+  }
+  .section-head {
+    padding: 14px 22px;
+    border-bottom: 1px solid rgba(74,107,255,.2);
+    background: linear-gradient(90deg, rgba(74,107,255,.2), transparent);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-head .num {
+    width: 26px; height: 26px; border-radius: 6px;
+    background: var(--gold); color: #050818;
+    display: grid; place-items: center;
+    font-family: var(--pixel); font-size: 10px;
+    flex-shrink: 0;
+  }
+  .section-head h2 {
+    margin: 0; font-family: var(--pixel); font-size: 13px;
+    color: var(--gold); letter-spacing: 1px;
+  }
+  .section-head .tag { margin-left: auto; color: var(--muted); font-size: 12px; }
+  .section-body { padding: 28px 24px; }
+
+  /* ===== 表格 ===== */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th, td { border: 1px solid rgba(74,107,255,.2); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: rgba(74,107,255,.15); font-family: var(--pixel); font-size: 9px; color: var(--gold); letter-spacing: 1px; font-weight: 400; }
+  tr:nth-child(even) td { background: rgba(74,107,255,.04); }
+  td code { font-family: monospace; font-size: 12px; color: var(--chips-from); background: rgba(74,107,255,.15); padding: 2px 6px; border-radius: 4px; }
+
+  /* ===== 标注块 ===== */
+  .callout {
+    border-left: 4px solid var(--sb-blue);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    background: rgba(74,107,255,.08);
+  }
+  .callout.warn { border-color: #ff5544; background: rgba(255,85,68,.08); }
+  .callout.ok   { border-color: #62d18b; background: rgba(98,209,139,.08); }
+  .callout.gold { border-color: var(--gold); background: rgba(255,200,87,.08); }
+  .callout strong { display: block; margin-bottom: 6px; font-family: var(--pixel); font-size: 9px; letter-spacing: 1px; color: var(--gold); }
+  .callout p, .callout ul { font-size: 13px; color: var(--text-dim); margin: 4px 0; }
+  .callout ul { padding-left: 20px; }
+  .callout li { margin: 4px 0; }
+
+  /* ===== ASCII 线框容器 ===== */
+  .wireframe-wrap {
+    background: rgba(5,8,24,.7);
+    border: 1px solid rgba(74,107,255,.3);
+    border-radius: 10px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  .wireframe-wrap pre {
+    font-family: 'Courier New', 'Lucida Console', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-dim);
+    margin: 0;
+    white-space: pre;
+  }
+  .wireframe-wrap pre .hl-gold  { color: var(--gold); }
+  .wireframe-wrap pre .hl-blue  { color: var(--chips-from); }
+  .wireframe-wrap pre .hl-green { color: #62d18b; }
+  .wireframe-wrap pre .hl-red   { color: #ff5544; }
+  .wireframe-wrap pre .hl-dim   { color: var(--muted); }
+
+  /* ===== 设备标签 ===== */
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 11px; font-weight: 700; margin: 2px;
+  }
+  .badge-ios     { background: rgba(252,228,236,.15); color: #f48fb1; border: 1px solid rgba(244,143,177,.3); }
+  .badge-android { background: rgba(232,245,233,.15); color: #81c784; border: 1px solid rgba(129,199,132,.3); }
+  .badge-done    { background: rgba(98,209,139,.15); color: #62d18b; border: 1px solid rgba(98,209,139,.3); }
+  .badge-todo    { background: rgba(255,200,87,.15); color: var(--gold); border: 1px solid rgba(255,200,87,.3); }
+
+  /* ===== 间距 Token 展示 ===== */
+  .token-grid { display: flex; flex-direction: column; gap: 8px; }
+  .token-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 8px 14px;
+    background: rgba(74,107,255,.08);
+    border: 1px solid rgba(74,107,255,.2);
+    border-radius: 8px;
+  }
+  .token-name  { font-family: var(--pixel); font-size: 7px; color: var(--muted); width: 120px; flex-shrink: 0; }
+  .token-val   { font-size: 12px; font-weight: 700; color: var(--text); width: 60px; flex-shrink: 0; }
+  .token-bar-wrap { flex: 1; height: 12px; background: rgba(0,0,0,.3); border-radius: 6px; overflow: hidden; }
+  .token-bar   { height: 100%; background: linear-gradient(90deg, var(--sb-blue), var(--chips-from)); border-radius: 6px; }
+  .token-desc  { font-size: 12px; color: var(--muted); width: 200px; text-align: right; }
+
+  /* ===== 色块 Token ===== */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .color-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: rgba(74,107,255,.08);
+    border: 1px solid rgba(74,107,255,.2);
+    border-radius: 8px;
+  }
+  .color-swatch { width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0; border: 2px solid rgba(255,255,255,.1); }
+  .color-name  { font-family: var(--pixel); font-size: 7px; color: var(--muted); letter-spacing: 0.5px; }
+  .color-val   { font-size: 11px; font-weight: 700; color: var(--text); }
+
+  /* ===== 竖屏挡板预览 ===== */
+  .portrait-blocker-preview {
+    width: 260px;
+    height: 380px;
+    background: #0a1438;
+    border-radius: 16px;
+    border: 2px solid rgba(74,107,255,.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 20px auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,.6);
+  }
+  .portrait-icon { font-size: 64px; animation: swing 1.2s ease-in-out infinite alternate; }
+  @keyframes swing {
+    from { transform: rotate(-12deg); }
+    to   { transform: rotate(12deg); }
+  }
+  .portrait-title { font-size: 22px; font-weight: 700; color: #ffc857; font-family: 'Inter', sans-serif; text-align: center; }
+  .portrait-sub   { font-size: 15px; color: rgba(255,255,255,.5); font-family: 'Inter', sans-serif; text-align: center; }
+
+  /* ===== 布局示意渲染图 ===== */
+  .layout-render {
+    width: 100%;
+    max-width: 900px;
+    height: 230px;
+    background: rgba(5,8,24,.8);
+    border: 2px solid rgba(74,107,255,.4);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    margin: 16px auto;
+    display: flex;
+  }
+
+  /* 安全区标注辅助线 */
+  .safe-left  { position: absolute; left: 44px; top: 0; bottom: 0; width: 1px; background: rgba(255,200,87,.4); z-index: 10; }
+  .safe-right { position: absolute; right: 44px; top: 0; bottom: 0; width: 1px; background: rgba(255,200,87,.4); z-index: 10; }
+  .safe-bottom{ position: absolute; bottom: 20px; left: 0; right: 0; height: 1px; background: rgba(255,200,87,.4); z-index: 10; }
+  .safe-label { position: absolute; font-size: 9px; color: var(--gold); font-family: monospace; z-index: 11; }
+
+  .lr-sidebar {
+    width: 28%;
+    min-width: 140px;
+    background: rgba(10,16,48,.9);
+    border-right: 1px solid rgba(74,107,255,.3);
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transform-origin: top left;
+  }
+  .lr-sb-logo {
+    font-family: var(--pixel); font-size: 6px; color: var(--gold);
+    text-align: center; margin-bottom: 4px; letter-spacing: 0.5px;
+  }
+  .lr-sb-panel {
+    background: rgba(26,40,88,.6); border-radius: 5px; padding: 4px 6px;
+    border: 1px solid rgba(74,107,255,.2); font-size: 8px;
+  }
+  .lr-sb-num  { font-family: var(--display); font-size: 14px; color: #ff4d4d; line-height: 1; }
+  .lr-sb-gold { font-family: var(--display); font-size: 16px; color: var(--gold); }
+  .lr-chips   { background: linear-gradient(135deg, var(--chips-from), var(--chips-to)); border-radius: 4px; padding: 2px 4px; display: inline-block; font-size: 10px; font-weight: 900; color: #000; }
+  .lr-mult    { background: linear-gradient(135deg, var(--mult-from), var(--mult-to));  border-radius: 4px; padding: 2px 4px; display: inline-block; font-size: 10px; font-weight: 900; color: #000; }
+
+  .lr-main {
+    flex: 1;
+    display: grid;
+    grid-template-rows: 40% 1fr 40%;
+    overflow: hidden;
+  }
+  .lr-joker-zone {
+    background: rgba(15,23,42,.7);
+    padding: 4px 8px;
+    border-bottom: 1px solid rgba(74,107,255,.2);
+    display: flex; flex-direction: column;
+  }
+  .lr-joker-label { font-family: var(--pixel); font-size: 5px; color: var(--gold); margin-bottom: 3px; }
+  .lr-joker-row   { display: flex; gap: 4px; align-items: flex-start; overflow: hidden; }
+  .lr-joker-card  {
+    width: 36px; height: 52px; flex-shrink: 0;
+    background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+    border: 1px solid var(--card-edge); border-radius: 4px;
+    display: grid; place-items: center; font-size: 16px;
+  }
+  .lr-joker-empty {
+    width: 36px; height: 52px; flex-shrink: 0;
+    border: 1px dashed rgba(74,107,255,.35); border-radius: 4px;
+    background: rgba(74,107,255,.04);
+  }
+  .lr-play-zone {
+    background: rgba(5,8,24,.5);
+    padding: 6px 10px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lr-play-empty { font-size: 9px; color: rgba(255,255,255,.35); font-family: var(--pixel); }
+  .lr-hand-zone {
+    padding: 6px 10px 4px;
+    display: flex; flex-direction: column;
+    border-top: 1px solid rgba(74,107,255,.2);
+  }
+  .lr-hand-header { display: flex; justify-content: space-between; font-size: 8px; color: var(--gold); margin-bottom: 4px; }
+  .lr-hand-cards  { display: flex; gap: 3px; justify-content: center; align-items: flex-start; height: 48px; }
+  .lr-hand-card   {
+    width: 26px; height: 38px; flex-shrink: 0;
+    background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+    border: 1px solid var(--card-edge); border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+  .lr-hand-card.sel { transform: translateY(-8px); box-shadow: 0 3px 8px rgba(74,107,255,.5); }
+  .lr-action-row  { display: flex; gap: 4px; margin-top: 4px; align-items: center; }
+  .lr-btn-play    {
+    padding: 4px 8px; border-radius: 5px; font-size: 7px; font-weight: 800; color: #fff;
+    background: linear-gradient(180deg, #34d399, #059669);
+    box-shadow: 0 2px 0 #047857;
+    white-space: nowrap;
+  }
+  .lr-btn-discard {
+    padding: 4px 8px; border-radius: 5px; font-size: 7px; font-weight: 800; color: #fff;
+    background: linear-gradient(180deg, #fb7185, #dc2626);
+    box-shadow: 0 2px 0 #991b1b;
+    white-space: nowrap;
+  }
+  .lr-btn-sort {
+    padding: 3px 6px; border-radius: 4px; font-size: 7px; color: var(--text-dim);
+    background: rgba(74,107,255,.15); border: 1px solid rgba(74,107,255,.3);
+    white-space: nowrap;
+  }
+
+  /* ===== 组件状态展示 ===== */
+  .state-grid { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin: 12px 0; }
+  .state-label { font-family: var(--pixel); font-size: 8px; color: var(--muted); margin-bottom: 6px; display: block; }
+
+  /* ===== 总结块 ===== */
+  .summary-card {
+    background: linear-gradient(135deg, rgba(74,107,255,.12), rgba(45,64,128,.08));
+    border: 2px solid rgba(74,107,255,.4);
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-top: 8px;
+  }
+  .summary-card h3 { font-family: var(--pixel); font-size: 10px; color: var(--gold); letter-spacing: 1px; margin: 0 0 14px; }
+  .summary-card p  { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin: 0; }
+  .summary-card ul { font-size: 13px; color: var(--text-dim); line-height: 1.7; padding-left: 20px; margin: 8px 0 0; }
+  .summary-card li { margin: 6px 0; }
+
+  /* ===== 触控热区演示 ===== */
+  .touch-demo {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .touch-hotzone {
+    border: 2px dashed rgba(255,200,87,.6);
+    border-radius: 8px;
+    background: rgba(255,200,87,.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--gold);
+    font-family: var(--pixel);
+    letter-spacing: 0.5px;
+  }
+
+  p { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin: 10px 0; }
+  h3 { font-family: var(--pixel); font-size: 10px; color: var(--gold); letter-spacing: 1px; margin: 20px 0 10px; }
+  h4 { font-size: 13px; font-weight: 700; color: var(--text); margin: 14px 0 8px; }
+  ul { font-size: 13px; color: var(--text-dim); padding-left: 20px; }
+  li { margin: 5px 0; line-height: 1.6; }
+  code { font-family: monospace; font-size: 12px; color: var(--chips-from); background: rgba(74,107,255,.15); padding: 2px 6px; border-radius: 4px; }
+  strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>小丑牌 · 跨端适配设计稿</h1>
+  <span class="sub">移动端横屏 · iOS + Android · 2026-05</span>
+</div>
+
+<div class="container">
+
+  <!-- ===== §0 文档说明 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">0</div>
+      <h2>文档说明</h2>
+      <span class="tag">范围 / 前提 / 配套文档</span>
+    </div>
+    <div class="section-body">
+      <div class="callout gold">
+        <strong>本文档范围</strong>
+        <p>本设计稿仅覆盖<strong>移动端横屏（Android + iOS）</strong>的适配规范。PC 网页版布局保持不变，不出设计稿。所有移动端适配样式通过 <code>@media</code> 媒体查询隔离，PC 版宽屏布局零变化。</p>
+      </div>
+      <table>
+        <tr><th>配套文档</th><th>说明</th></tr>
+        <tr><td><code>01-第1轮-PRD-小丑牌核心循环.html</code></td><td>第 1 轮产品需求，游戏核心循环规格</td></tr>
+        <tr><td><code>01-第1轮-DESIGN-小丑牌核心循环.html</code></td><td>第 1 轮设计规范，配色 / 字体 / 组件 / 动画（本文档视觉风格保持一致）</td></tr>
+        <tr><td><code>01-第2轮-PRD-小丑牌跨端适配.html</code></td><td>第 2 轮产品需求，五端适配功能定义（本设计稿据此产出）</td></tr>
+        <tr><td><code>index.html</code></td><td>现有游戏实现，CSS 变量均从此文件提取，PC 版布局结构作为参照基准</td></tr>
+      </table>
+      <div class="callout">
+        <strong>硬性约束（来自 PRD）</strong>
+        <ul>
+          <li>只改 UI，不动游戏逻辑（牌型、计分、状态机、Joker、AI、商店随机化）</li>
+          <li>按钮不能遮挡游戏内容——出牌区、手牌区、小丑牌区是核心内容，操作按钮必须有独立区域</li>
+          <li>不影响 PC 版——所有移动端适配样式通过 <code>@media</code> 隔离</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §1 设计气质 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">1</div>
+      <h2>设计气质定调</h2>
+      <span class="tag">移动端横屏 · 三个形容词</span>
+    </div>
+    <div class="section-body">
+      <div class="summary-card">
+        <h3>克制 · 沉浸 · 精准</h3>
+        <ul>
+          <li><strong>克制</strong>：移动横屏空间有限（高度约 360–430px 逻辑像素），不增加新 UI 层级，不新增浮层遮挡，以"缩放而非重排"应对空间压缩。保留 PC 版所有信息密度，不做删减。</li>
+          <li><strong>沉浸</strong>：延续第 1 轮的深蓝水纹 Balatro 风格，全屏无系统干扰（沉浸式全屏 / 隐藏状态栏），刘海、Home Indicator 安全区均用留白而非遮挡来处理，不破坏视觉完整性。</li>
+          <li><strong>精准</strong>：所有可交互元素（手牌、按钮、Joker 卡）触控热区在缩放变换后仍满足 44pt/dp 最小规格，不因 CSS scale 导致实际触控区域缩水。触控反馈即时（消除 300ms 延迟），长按无系统菜单干扰。</li>
+        </ul>
+      </div>
+      <p>选择"缩放适配"而非"响应式重排"的原因：游戏 UI 是固定像素设计（元素位置关系强耦合），重排会破坏出牌动画中的空间映射逻辑（GSAP 动画依赖元素绝对坐标飞字）。等比缩放可以零改动地保留所有动画，且第 1 轮已实现 <code>--scale</code> 变量机制。</p>
+    </div>
+  </div>
+
+  <!-- ===== §2 目标设备与视口 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">2</div>
+      <h2>目标设备与视口规格</h2>
+      <span class="tag">iPhone + Android 横屏 · 逻辑像素</span>
+    </div>
+    <div class="section-body">
+      <table>
+        <tr>
+          <th>设备</th>
+          <th>横屏逻辑分辨率（CSS px）</th>
+          <th>DPR</th>
+          <th>特殊区域</th>
+          <th>安全区尺寸参考</th>
+        </tr>
+        <tr>
+          <td><span class="badge badge-ios">iPhone 12/13/14</span></td>
+          <td>844 × 390</td>
+          <td>3×</td>
+          <td>左侧刘海（横屏时刘海在左）</td>
+          <td>safe-area-inset-left ≈ 47px，bottom ≈ 21px</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-ios">iPhone 14 Pro / 15 Pro（动态岛）</span></td>
+          <td>932 × 430</td>
+          <td>3×</td>
+          <td>左侧动态岛（横屏时在左上角）</td>
+          <td>safe-area-inset-left ≈ 59px，bottom ≈ 21px</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-ios">iPhone SE 3（无刘海）</span></td>
+          <td>667 × 375</td>
+          <td>2×</td>
+          <td>无刘海，有 Home 按钮（无 Home Indicator）</td>
+          <td>所有 safe-area-inset = 0</td></tr>
+        <tr>
+          <td><span class="badge badge-android">Android 中档（小米 / OPPO / vivo）</span></td>
+          <td>800 × 360 ～ 915 × 412</td>
+          <td>2×–3×</td>
+          <td>打孔屏（左上角）/ 手势条（底部）</td>
+          <td>safe-area-inset-left ≈ 28–44px，bottom ≈ 16–28px</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-android">Android 旗舰（三星 S / 华为 Mate）</span></td>
+          <td>926 × 428 ～ 960 × 432</td>
+          <td>3×–4×</td>
+          <td>打孔屏 + 底部手势条</td>
+          <td>safe-area-inset-left ≈ 44px，bottom ≈ 20–28px</td>
+        </tr>
+      </table>
+
+      <div class="callout">
+        <strong>设计基准视口</strong>
+        <p>以 <strong>844 × 390px</strong>（iPhone 横屏，含刘海）作为设计基准。这是最常见的 iPhone 横屏尺寸，刘海约束是最严格的，以此为基准能确保 Android 设备上有更充裕空间。</p>
+      </div>
+
+      <h3>CSS 缩放基准推导</h3>
+      <p>PC 版游戏区完整渲染宽度约为 <strong>1440px</strong>（推荐启动尺寸），移动端横屏可用宽度约 <strong>844px</strong>（含 47px 左安全区后可用约 753px）。</p>
+      <table>
+        <tr><th>参数</th><th>值</th><th>推导说明</th></tr>
+        <tr><td>PC 版设计基准宽度</td><td>1440px</td><td>推荐窗口宽度</td></tr>
+        <tr><td>PC 版 sidebar 宽度</td><td>28vw ≈ 403px（at 1440px）</td><td><code>width: min(28vw, 480px)</code></td></tr>
+        <tr><td>PC 版 main-area 宽度</td><td>约 1037px</td><td>1440 - 403</td></tr>
+        <tr><td>移动端横屏可用宽度</td><td>约 753px</td><td>844 - 47（左安全区）- 44（右安全区）</td></tr>
+        <tr><td><strong>推荐 scale 值</strong></td><td><strong>0.51 ～ 0.53</strong></td><td>753 ÷ 1440 ≈ 0.523</td></tr>
+        <tr><td>移动端 sidebar 缩放后宽度</td><td>约 206px</td><td>403 × 0.51</td></tr>
+        <tr><td>移动端 main-area 缩放后宽度</td><td>约 529px</td><td>1037 × 0.51</td></tr>
+        <tr><td>移动端 main-area 缩放后高度</td><td>约 392px</td><td>PC 版三行（230+auto+340）约 770px × 0.51 ≈ 393px</td></tr>
+      </table>
+      <p>整体在 390px 高度下完整可见（近似铺满），无需滚动。</p>
+    </div>
+  </div>
+
+  <!-- ===== §3 整体布局方案 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">3</div>
+      <h2>整体布局方案</h2>
+      <span class="tag">scale 缩放适配 · 不重排</span>
+    </div>
+    <div class="section-body">
+
+      <h3>3.1 布局策略</h3>
+      <p>保持 PC 版 HTML 结构（sidebar + main-area 三行网格）不变，在移动端横屏时对根容器应用 <code>transform: scale(0.51)</code> 并调整 transform-origin，使整体等比缩放至目标视口。</p>
+
+      <div class="callout ok">
+        <strong>为什么不用响应式重排</strong>
+        <ul>
+          <li>GSAP 动画（飞牌、飞字、Joker 触发）依赖元素的 <code>getBoundingClientRect()</code> 坐标，重排会导致所有动画坐标计算失效，修复成本极高</li>
+          <li>第 1 轮已实现 <code>--scale</code> 动态缩放机制，本方案沿用扩展</li>
+          <li>scale 缩放保留所有 hover/active 样式、过渡动画、布局比例，零额外开发</li>
+        </ul>
+      </div>
+
+      <h3>3.2 ASCII 线框图（移动端横屏 · 844×390px）</h3>
+
+      <div class="wireframe-wrap">
+        <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│  844 × 390px  │  iPhone 横屏（含左侧刘海区域示意）                                       │
+│  [■■■ = 安全区边界]   [--- = 安全区保护线]                                               │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+ ◀ 844px ▶
+┌─[■■■]──────────────────────────────────────────────────────────────────────────[■■■]─┐  ▲
+│  safe-l       │                                                              safe-r  │  │
+│  47px         │                                                              44px    │  │
+│  ← 刘海区 →   │                                                                       │  │
+│               │                                                                       │  │
+│  ┌─SIDEBAR──┐ │  ┌────────────── MAIN-AREA (整体 scale 0.51) ────────────────────┐   │  │ 390px
+│  │ 🃏小丑牌  │ │  │  ┌── ROW 1: 小丑牌区 (230px × 0.51 = 117px) ──────────────┐  │   │  │
+│  │ ─────── │ │  │  │  JOKERS · 3/5  [🎭] [💰] [🃏] [  ] [  ]               │  │   │  │
+│  │ 盲注面板 │ │  │  └────────────────────────────────────────────────────────┘  │   │  │
+│  │ Round   │ │  │  ┌── ROW 2: 出牌区 (1fr · 弹性) ─────────────────────────┐   │   │  │
+│  │ Score   │ │  │  │                                                        │   │   │  │
+│  │ 筹码×倍 │ │  │  │         选择手牌组成牌型（1-5 张）                        │   │   │  │
+│  │ 手数 弃牌│ │  │  │                                              [牌堆 abs] │   │   │  │
+│  │  $金币  │ │  │  └────────────────────────────────────────────────────────┘   │   │  │
+│  │ ─────── │ │  │  ┌── ROW 3: 手牌区 (340px × 0.51 = 173px) ───────────────┐   │   │  │
+│  │ 底注 回合│ │  │  │  手牌  已选 X/5 张                                       │   │   │  │
+│  │ 重新开始 │ │  │  │  [▲][▲][▲][▲][▲][▲][▲][▲]  ← 8张手牌横排              │   │   │  │
+│  └─────────┘ │  │  │  [出牌 (X)]  [弃牌 (X)]  [按点] [按花] [AI 出牌]          │   │   │  │
+│               │  │  └────────────────────────────────────────────────────────┘   │   │  │
+│               │  └──────────────────────────────────────────────────────────────┘   │  │
+│               │                                                                       │  │
+│    ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ safe-bottom ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    │  │
+│               │                      [Home Indicator / 手势条安全区 21px]            │  │ ▼
+└───────────────────────────────────────────────────────────────────────────────────────┘
+         ▲                                       ▲
+     左安全区 (safe-area-inset-left)         右安全区 (safe-area-inset-right)
+     刘海/动态岛保护区                         摄像头打孔屏保护区
+        </pre>
+      </div>
+
+      <h3>3.3 HTML 结构层级说明</h3>
+      <table>
+        <tr><th>层级</th><th>CSS 选择器</th><th>PC 版尺寸</th><th>移动端缩放后实际尺寸</th><th>说明</th></tr>
+        <tr>
+          <td>整体容器</td>
+          <td><code>#app</code></td>
+          <td>100vw × 100vh</td>
+          <td>844 × 390px（铺满视口）</td>
+          <td>不参与 scale，作为 scale 容器的父级</td>
+        </tr>
+        <tr>
+          <td>缩放容器</td>
+          <td><code>.game-wrap</code>（新增）</td>
+          <td>1440 × 900px（设计基准）</td>
+          <td>transform: scale(0.51) · 视觉约 734 × 459px</td>
+          <td>transform-origin: top left · 包裹 sidebar + main-area</td>
+        </tr>
+        <tr>
+          <td>左侧边栏</td>
+          <td><code>.sidebar</code></td>
+          <td>min(28vw,480px) · 约 403px</td>
+          <td>缩放后约 206px 视觉宽度</td>
+          <td>结构不变，scale 统一处理</td>
+        </tr>
+        <tr>
+          <td>右主区 · 行1</td>
+          <td><code>.joker-zone</code></td>
+          <td>固定 230px 高</td>
+          <td>缩放后约 117px 视觉高度</td>
+          <td>小丑牌 5 槽横排，每张 140×200px（缩放后约 71×102px）</td>
+        </tr>
+        <tr>
+          <td>右主区 · 行2</td>
+          <td><code>.play-zone</code></td>
+          <td>1fr（弹性）</td>
+          <td>缩放后弹性填充剩余</td>
+          <td>出牌区 + 牌堆 absolute</td>
+        </tr>
+        <tr>
+          <td>右主区 · 行3</td>
+          <td><code>.hand-zone</code></td>
+          <td>固定 340px 高</td>
+          <td>缩放后约 173px 视觉高度</td>
+          <td>手牌 8 张 + action-row（按钮行）</td>
+        </tr>
+      </table>
+
+      <h3>3.4 缩放后区域高度分配验证</h3>
+      <table>
+        <tr><th>区域</th><th>PC 版高度</th><th>× scale 0.51</th><th>视觉高度</th><th>占 390px 比例</th></tr>
+        <tr><td>小丑牌区 (row 1)</td><td>230px</td><td>× 0.51</td><td>117px</td><td>30%</td></tr>
+        <tr><td>出牌区 (row 2)</td><td>约 200px（弹性）</td><td>× 0.51</td><td>约 102px</td><td>26%</td></tr>
+        <tr><td>手牌区 (row 3)</td><td>340px</td><td>× 0.51</td><td>173px</td><td>44%</td></tr>
+        <tr><td><strong>合计</strong></td><td><strong>770px</strong></td><td></td><td><strong>392px</strong></td><td><strong>≈ 100%（完整铺满）</strong></td></tr>
+      </table>
+      <p>390px 高度（iPhone 基准）可完整容纳三个区域，无需滚动，无内容裁切。</p>
+
+      <h3>3.5 渲染效果示意</h3>
+      <p>以下为真实比例的缩放布局渲染示意（非精确像素，仅展示各区域比例与视觉层次）：</p>
+
+      <div class="layout-render">
+        <!-- 安全区辅助线 -->
+        <div class="safe-left"></div>
+        <div class="safe-right"></div>
+        <div class="safe-bottom"></div>
+        <span class="safe-label" style="left:4px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:8px;">← safe-l 47px →</span>
+        <span class="safe-label" style="right:2px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:8px;color:var(--gold);">← safe-r →</span>
+        <span class="safe-label" style="bottom:3px;left:50%;transform:translateX(-50%);">← safe-bottom 21px →</span>
+
+        <!-- Sidebar -->
+        <div class="lr-sidebar" style="padding-left:20px">
+          <div class="lr-sb-logo">🃏 小丑牌</div>
+          <div class="lr-sb-panel">
+            <div style="font-size:7px;color:var(--muted);">盲注</div>
+            <div style="font-size:9px;font-weight:700;color:var(--gold);">Boss 盲注</div>
+            <div class="lr-sb-num">800</div>
+            <div style="font-size:7px;color:var(--gold);">通关 +$8</div>
+          </div>
+          <div class="lr-sb-panel">
+            <div style="font-size:7px;color:var(--muted);">Round score</div>
+            <div class="lr-sb-num">560</div>
+          </div>
+          <div class="lr-sb-panel">
+            <div style="display:flex;gap:4px;align-items:center;justify-content:center;">
+              <span class="lr-chips">256</span>
+              <span style="font-size:8px;color:#fff;">×</span>
+              <span class="lr-mult">8</span>
+            </div>
+          </div>
+          <div class="lr-sb-panel" style="display:flex;gap:6px;text-align:center;">
+            <div style="flex:1"><div style="font-size:7px;color:var(--muted);">手数</div><div style="font-family:var(--display);font-size:14px;color:#4ade80;">3</div></div>
+            <div style="flex:1"><div style="font-size:7px;color:var(--muted);">弃牌</div><div style="font-family:var(--display);font-size:14px;color:#f87171;">2</div></div>
+          </div>
+          <div class="lr-sb-panel" style="text-align:center;">
+            <span style="font-family:var(--display);font-size:16px;color:var(--gold);">$24</span>
+          </div>
+          <div style="font-size:7px;text-align:center;color:var(--muted);margin-top:2px;">底注 2/3 · 回合 5</div>
+        </div>
+
+        <!-- Main Area -->
+        <div class="lr-main">
+          <!-- Joker Zone -->
+          <div class="lr-joker-zone">
+            <div class="lr-joker-label">JOKERS · 3/5</div>
+            <div class="lr-joker-row">
+              <div class="lr-joker-card">🎭</div>
+              <div class="lr-joker-card">💰</div>
+              <div class="lr-joker-card">🃏</div>
+              <div class="lr-joker-empty"></div>
+              <div class="lr-joker-empty"></div>
+            </div>
+          </div>
+
+          <!-- Play Zone -->
+          <div class="lr-play-zone">
+            <div class="lr-play-empty">选择手牌组成牌型</div>
+            <!-- Deck pile -->
+            <div style="position:absolute;bottom:6px;right:8px;display:flex;flex-direction:column;align-items:center;">
+              <div style="width:28px;height:38px;background:linear-gradient(135deg,#6b3ec9,#2d0d6e);border:1px solid rgba(255,255,255,.15);border-radius:4px;box-shadow:-2px 2px 0 rgba(0,0,0,.4)"></div>
+              <div style="font-family:var(--display);font-size:10px;color:var(--gold);margin-top:2px;">38/52</div>
+            </div>
+          </div>
+
+          <!-- Hand Zone -->
+          <div class="lr-hand-zone">
+            <div class="lr-hand-header">
+              <span>手牌</span>
+              <span style="color:rgba(255,255,255,.5);">已选 3/5 张</span>
+            </div>
+            <div class="lr-hand-cards">
+              <div class="lr-hand-card"></div>
+              <div class="lr-hand-card sel"></div>
+              <div class="lr-hand-card"></div>
+              <div class="lr-hand-card sel"></div>
+              <div class="lr-hand-card"></div>
+              <div class="lr-hand-card"></div>
+              <div class="lr-hand-card sel"></div>
+              <div class="lr-hand-card"></div>
+            </div>
+            <div class="lr-action-row">
+              <div class="lr-btn-play">出牌 (3)</div>
+              <div class="lr-btn-discard">弃牌 (2)</div>
+              <div class="lr-btn-sort">按点</div>
+              <div class="lr-btn-sort">按花</div>
+              <div style="margin-left:auto;padding:3px 6px;border-radius:4px;background:linear-gradient(180deg,#c084fc,#7e22ce);font-size:7px;color:#fff;box-shadow:0 2px 0 #581c87;">🤖 AI</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px;">以上为比例示意图。黄色虚线为安全区边界（左侧 47px 刘海区、右侧 44px、底部 21px Home Indicator）</p>
+    </div>
+  </div>
+
+  <!-- ===== §4 安全区适配 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">4</div>
+      <h2>安全区适配规范</h2>
+      <span class="tag">刘海 / 动态岛 / Home Indicator / 手势条</span>
+    </div>
+    <div class="section-body">
+
+      <h3>4.1 安全区 ASCII 标注图</h3>
+      <div class="wireframe-wrap">
+        <pre>
+  iPhone 横屏（844 × 390px）· 左侧刘海机型（iPhone 12/13/14）
+  ┌──────────────────────────────────────────────────────────────────────────────────────┐
+  │◀47px▶│                   可用游戏区域（753 × 369px）                    │◀44px▶│      │
+  │      │                                                               │      │      │
+  │[刘海]│  ┌─ Sidebar ──────────────────────────────────────────────────┐│      │      │
+  │      │  │ 🃏小丑牌  logo                                              ││      │      │
+  │      │  │ 盲注 / 分数 / 筹码 / 金币 / 按钮区                            ││      │      │
+  │      │  └──────────────────────────────────────────────────────────┘│      │      │
+  │      │  ┌─ Main Area ──────────────────────────────────────────────┐ │      │      │
+  │      │  │  Joker 区 / 出牌区 / 手牌区 / 操作按钮                      │ │      │      │
+  │      │  └──────────────────────────────────────────────────────────┘ │      │      │
+  │      │                                                               │      │      │
+  │      ├─────────────────── safe-bottom 边界 ──────────────────────────┤      │      │
+  │      │              Home Indicator 保护区（21px）                      │      │      │
+  └──────────────────────────────────────────────────────────────────────────────────────┘
+
+  iPhone 横屏（932 × 430px）· 动态岛机型（iPhone 14 Pro / 15 Pro）
+  ┌──────────────────────────────────────────────────────────────────────────────────────┐
+  │◀59px▶│                  可用游戏区域（829 × 409px）                   │◀44px▶│      │
+  │[■动态│  ┌─ Sidebar ─────────────────────────────────────────────────┐│      │      │
+  │  岛■]│  │ 🃏小丑牌                           ⚙️ 设置按钮（右上角）     ││      │      │
+  │      │  │ ...                                                       ││      │      │
+  │      │  └──────────────────────────────────────────────────────────┘│      │      │
+  │      │  ┌─ Main Area ──────────────────────────────────────────────┐ │      │      │
+  │      │  │  正常渲染区域                                              │ │      │      │
+  │      │  └──────────────────────────────────────────────────────────┘ │      │      │
+  │      ├─────────────────── safe-bottom 边界 ──────────────────────────┤      │      │
+  │      │              Home Indicator 保护区（21px）                      │      │      │
+  └──────────────────────────────────────────────────────────────────────────────────────┘
+
+  Android 横屏（800–960 × 360–432px）· 左上角打孔屏
+  ┌──────────────────────────────────────────────────────────────────────────────────────┐
+  │◀28px▶│                  可用游戏区域                                  │◀28px▶│      │
+  │[●孔]  │  ┌─ Sidebar ──────────────────────────────────────────────────┐│      │      │
+  │       │  │ 🃏小丑牌                                                    ││      │      │
+  │       │  └──────────────────────────────────────────────────────────┘│      │      │
+  │       │  ┌─ Main Area ──────────────────────────────────────────────┐ │      │      │
+  │       │  │                                                          │ │      │      │
+  │       │  └──────────────────────────────────────────────────────────┘ │      │      │
+  │       ├─────────────────── safe-bottom 边界 ─────────────────────────┤      │      │
+  │       │              底部手势条保护区（16–28px）                         │      │      │
+  └──────────────────────────────────────────────────────────────────────────────────────┘
+        </pre>
+      </div>
+
+      <h3>4.2 CSS 变量方案</h3>
+      <table>
+        <tr><th>安全区方向</th><th>CSS 变量</th><th>应用位置</th><th>风险元素</th><th>降级值</th></tr>
+        <tr>
+          <td>左侧（刘海 / 打孔）</td>
+          <td><code>env(safe-area-inset-left)</code></td>
+          <td>根容器 <code>.game-wrap</code> 的 <code>padding-left</code> 或 <code>margin-left</code></td>
+          <td>左 sidebar 顶部 logo、盲注面板顶部</td>
+          <td>0（旧浏览器正常显示）</td>
+        </tr>
+        <tr>
+          <td>右侧（右侧打孔屏）</td>
+          <td><code>env(safe-area-inset-right)</code></td>
+          <td>根容器 <code>.game-wrap</code> 的 <code>padding-right</code></td>
+          <td>右侧操作按钮边缘、设置按钮</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>底部（Home Indicator / 手势条）</td>
+          <td><code>env(safe-area-inset-bottom)</code></td>
+          <td><code>.hand-zone</code> 的 <code>padding-bottom</code></td>
+          <td>出牌/弃牌按钮行（.action-row）</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>顶部（状态栏，全屏模式后为 0）</td>
+          <td><code>env(safe-area-inset-top)</code></td>
+          <td>全屏模式隐藏状态栏后此值 = 0，无需额外处理</td>
+          <td>右上角 ⚙️ 设置按钮</td>
+          <td>0</td>
+        </tr>
+      </table>
+
+      <div class="callout warn">
+        <strong>注意：安全区与 scale 的叠加关系</strong>
+        <p>安全区 padding 应加在 <strong>scale 容器的父级（#app 或 .safe-wrapper）</strong>，而非 scale 容器本身。若加在 scale 容器内部，padding 值也会被 scale 压缩（例如 47px × 0.51 = 24px，小于实际刘海宽度，无法有效保护）。</p>
+        <p>正确做法：在 <code>#app</code> 层应用 <code>padding-left: env(safe-area-inset-left)</code>，让 <code>.game-wrap</code>（缩放容器）从安全区内边界开始布局。</p>
+      </div>
+
+      <h3>4.3 viewport meta 配置</h3>
+      <p>现有 <code>index.html</code> 已包含 <code>viewport-fit=cover</code>，确认保留，无需修改：</p>
+      <div style="background:rgba(0,0,0,.4);border:1px solid rgba(74,107,255,.3);border-radius:6px;padding:14px 18px;margin:8px 0;">
+        <code style="font-size:13px;color:var(--chips-from);">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"&gt;</code>
+      </div>
+      <p><code>viewport-fit=cover</code> 是 iOS Safari / WKWebView 暴露安全区 CSS 变量的必要条件。Android Tauri WebView 同样支持此属性。</p>
+    </div>
+  </div>
+
+  <!-- ===== §5 按钮区设计 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">5</div>
+      <h2>按钮区设计规范</h2>
+      <span class="tag">触控区域 · 安全区保护 · 不遮挡游戏内容</span>
+    </div>
+    <div class="section-body">
+
+      <h3>5.1 按钮布局原则</h3>
+      <div class="callout ok">
+        <strong>核心原则：按钮有独立区域，不遮挡游戏内容</strong>
+        <p>操作按钮（出牌/弃牌/排序/AI出牌）位于 <code>.action-row</code>，固定在手牌区（<code>.hand-zone</code> 第三行）底部，属于手牌区内部布局，不使用 <code>position: fixed</code> 悬浮覆盖，不遮挡小丑牌区、出牌区和手牌显示区。</p>
+      </div>
+
+      <h3>5.2 缩放后按钮触控热区计算</h3>
+      <p>现有 <code>.px-btn</code> 规范：<code>min-height: 52px</code>。经过 scale 0.51 缩放后，<strong>视觉高度约 26.5px</strong>，低于 44pt 标准。</p>
+
+      <div class="callout warn">
+        <strong>scale 缩放导致触控区域收缩问题</strong>
+        <p><code>transform: scale()</code> 会同时缩小视觉大小和触控热区（touch target）。若对整个游戏容器应用 scale(0.51)，按钮的实际触控面积 = 原始 CSS 面积 × 0.51²，远小于 44pt 要求。</p>
+      </div>
+
+      <h4>两种解决方案对比：</h4>
+      <table>
+        <tr><th>方案</th><th>描述</th><th>优点</th><th>缺点</th><th>推荐</th></tr>
+        <tr>
+          <td>方案 A：伪元素扩展热区</td>
+          <td>对 <code>.action-row .px-btn</code> 添加 <code>::before</code> 伪元素，扩大至真实 44pt/dp（约 86px 原始 CSS 尺寸，缩放后约 44px）</td>
+          <td>不改变视觉，触控准确</td>
+          <td>伪元素尺寸需精确计算：44 ÷ 0.51 ≈ 86px</td>
+          <td>推荐</td>
+        </tr>
+        <tr>
+          <td>方案 B：action-row 不参与 scale</td>
+          <td>将 <code>.action-row</code> 从 scale 容器中提取，使用 <code>position: fixed</code> 固定在底部，不参与整体缩放</td>
+          <td>触控区域 = 原始 CSS 尺寸，无需换算</td>
+          <td>按钮位置从 grid 流中脱离，可能遮挡内容；需精确计算 fixed 坐标</td>
+          <td>不推荐（违反"不遮挡游戏内容"原则）</td>
+        </tr>
+        <tr>
+          <td>方案 C：仅对按钮行 scale-up</td>
+          <td>在 <code>.action-row</code> 上应用反向 scale（<code>scale(1/0.51)</code>），使其在整体 scale 容器内视觉恢复原尺寸</td>
+          <td>触控区域自动正确，无需计算</td>
+          <td>按钮视觉变大，会侵占手牌区空间</td>
+          <td>备选</td>
+        </tr>
+      </table>
+
+      <h3>5.3 最小触控区域规格（按方案 A）</h3>
+      <table>
+        <tr><th>元素</th><th>原始 CSS min-height</th><th>伪元素扩展目标（≥ 44pt / 0.51）</th><th>伪元素高度</th><th>状态</th></tr>
+        <tr>
+          <td>出牌 / 弃牌按钮</td>
+          <td>52px</td>
+          <td>44 ÷ 0.51 ≈ 86px（触控热区）</td>
+          <td>::before 高度 86px，上移补偿</td>
+          <td><span class="badge badge-todo">待实现</span></td>
+        </tr>
+        <tr>
+          <td>排序按钮（按点 / 按花）</td>
+          <td>44px（.btn-ghost）</td>
+          <td>44 ÷ 0.51 ≈ 86px</td>
+          <td>同上</td>
+          <td><span class="badge badge-todo">待实现</span></td>
+        </tr>
+        <tr>
+          <td>AI 出牌按钮</td>
+          <td>52px</td>
+          <td>86px</td>
+          <td>同上</td>
+          <td><span class="badge badge-todo">待实现</span></td>
+        </tr>
+        <tr>
+          <td>右上角 ⚙️ 设置按钮</td>
+          <td>44×44px（已达标）</td>
+          <td>44 ÷ 0.51 ≈ 86px（若在 scale 容器内）</td>
+          <td>若设置按钮脱离 scale 容器（position: fixed），则无需扩展</td>
+          <td><span class="badge badge-done">已满足（待确认归属层级）</span></td>
+        </tr>
+        <tr>
+          <td>手牌（扑克牌）</td>
+          <td>100×145px</td>
+          <td>44 ÷ 0.51 ≈ 86px 宽（手牌宽 100×0.51=51px，已 > 44px）</td>
+          <td>宽度方向已满足；高度方向 145×0.51=74px > 44px，已满足</td>
+          <td><span class="badge badge-done">已满足</span></td>
+        </tr>
+        <tr>
+          <td>Joker 卡</td>
+          <td>140×200px</td>
+          <td>140×0.51=71px > 44px · 200×0.51=102px > 44px</td>
+          <td>已满足</td>
+          <td><span class="badge badge-done">已满足</span></td>
+        </tr>
+      </table>
+
+      <h3>5.4 操作按钮区 ASCII 详图</h3>
+      <div class="wireframe-wrap">
+        <pre>
+  .hand-zone（手牌区第三行 · 340px 原始高度 · 缩放后约 173px 视觉高度）
+  ┌──────────────────────────────────────────────────────────────────────────────┐
+  │  手牌                                                    已选 3 / 5 张       │  ← hand-header（14px 高）
+  ├──────────────────────────────────────────────────────────────────────────────┤
+  │                                                                              │
+  │         [♠A]  [♥K]  [♠Q]  [♦J]  [♣10]  [♠9]  [♥8]  [♦7]                   │  ← hand-cards-row（155px 高）
+  │               ↑ 选中上移 28px      ↑ 选中                                     │    卡牌 100×145px
+  │                                                                              │
+  ├──────────────────────────────────────────────────────────────────────────────┤
+  │  [  出牌 (3)  ]  [  弃牌 (2)  ]  [ 按点排序 ]  [ 按花排序 ]  [🤖 AI 出牌]    │  ← action-row（min-height: 52px）
+  │       ↑ 绿色              ↑ 红色       ↑ ghost 紫蓝                ↑ 紫色       │
+  ├──────────────────────────────────────────────────────────────────────────────┤
+  │                                                                              │
+  │  ← padding-bottom: env(safe-area-inset-bottom) 保护 Home Indicator →        │  ← 安全区保护（21px）
+  └──────────────────────────────────────────────────────────────────────────────┘
+
+  action-row 按钮触控热区扩展示意（方案 A，::before 伪元素）：
+  ┌─────────────────────┐    原始 CSS 区域（52px 视觉高度 × 0.51 = 26.5px 实际触控）
+  │  [  出牌 (3)  ]    │    ↑
+  └─────────────────────┘    ↓
+  ╔═════════════════════╗    触控热区扩展至 86px（CSS）= 44pt 实际触控区域
+  ║                     ║    ::before { content:''; position: absolute;
+  ║  [  出牌 (3)  ]    ║           top: -17px; bottom: -17px;
+  ║                     ║           left: 0; right: 0; }
+  ╚═════════════════════╝
+        </pre>
+      </div>
+
+      <h3>5.5 底部按钮安全区保护</h3>
+      <p>手牌区 <code>.hand-zone</code> 需在移动端横屏时增加底部内边距，使 <code>.action-row</code> 不被 Home Indicator / 手势条遮挡：</p>
+      <div style="background:rgba(0,0,0,.4);border:1px solid rgba(74,107,255,.3);border-radius:6px;padding:14px 18px;margin:8px 0;font-family:monospace;font-size:12px;color:var(--text-dim);line-height:1.8;">
+        <span style="color:var(--muted);">/* 仅在移动端横屏时应用，PC 版不受影响 */</span><br>
+        <span style="color:#4dd6ff;">@media</span> (max-width: 1024px) and (orientation: landscape) {<br>
+        &nbsp;&nbsp;<span style="color:var(--gold);">.hand-zone</span> {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--chips-from);">padding-bottom</span>: max(12px, env(safe-area-inset-bottom));<br>
+        &nbsp;&nbsp;}<br>
+        &nbsp;&nbsp;<span style="color:var(--gold);">#app</span> {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--chips-from);">padding-left</span>: env(safe-area-inset-left);<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--chips-from);">padding-right</span>: env(safe-area-inset-right);<br>
+        &nbsp;&nbsp;}<br>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §6 竖屏挡板 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">6</div>
+      <h2>竖屏挡板视觉规范</h2>
+      <span class="tag">已完成确认 · 视觉规范锁定</span>
+    </div>
+    <div class="section-body">
+      <div class="callout ok">
+        <strong>状态：第 1 轮已完成，本轮确认规范</strong>
+        <p>竖屏挡板已在第 1 轮实现，以下为视觉规范锁定，工程师实现时以此为准。</p>
+      </div>
+
+      <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
+        <div>
+          <h3>竖屏挡板预览</h3>
+          <div class="portrait-blocker-preview">
+            <div class="portrait-icon">📱</div>
+            <div class="portrait-title">请旋转屏幕</div>
+            <div class="portrait-sub">小丑牌仅支持横屏模式</div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:280px;">
+          <h3>视觉规范</h3>
+          <table>
+            <tr><th>属性</th><th>值</th><th>说明</th></tr>
+            <tr><td>背景色</td><td><code>#0a1438</code></td><td>与游戏主背景色一致（--bg-deep）</td></tr>
+            <tr><td>图标</td><td>📱 emoji</td><td>font-size: 64px</td></tr>
+            <tr><td>图标动画</td><td>摆动（swing）</td><td>rotate -12deg ↔ +12deg，1.2s ease-in-out alternate 无限循环</td></tr>
+            <tr><td>主文案</td><td>请旋转屏幕</td><td>22px · font-weight: 700 · Inter · 金色 #ffc857</td></tr>
+            <tr><td>副文案</td><td>小丑牌仅支持横屏模式</td><td>15px · Inter · rgba(255,255,255,0.5)</td></tr>
+            <tr><td>布局</td><td>全屏覆盖</td><td>position: fixed · inset: 0 · z-index: 9999 · flex 垂直居中</td></tr>
+            <tr><td>触发条件</td><td><code>@media (orientation: portrait)</code></td><td>竖屏时显示，横屏时 display: none</td></tr>
+            <tr><td>游戏区</td><td>竖屏时隐藏</td><td>挡板显示时 #app display: none 或 visibility: hidden，不渲染游戏内容</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <h3>安全区处理</h3>
+      <p>竖屏挡板本身也需要安全区处理——竖屏时刘海在顶部，Home Indicator 在底部，文字和图标需在安全区内居中：</p>
+      <div style="background:rgba(0,0,0,.4);border:1px solid rgba(74,107,255,.3);border-radius:6px;padding:14px 18px;margin:8px 0;font-family:monospace;font-size:12px;color:var(--text-dim);line-height:1.8;">
+        <span style="color:#4dd6ff;">.portrait-blocker</span> {<br>
+        &nbsp;&nbsp;<span style="color:var(--chips-from);">padding-top</span>: max(20px, env(safe-area-inset-top));<br>
+        &nbsp;&nbsp;<span style="color:var(--chips-from);">padding-bottom</span>: max(20px, env(safe-area-inset-bottom));<br>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §7 触控规范 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">7</div>
+      <h2>触控优化规范</h2>
+      <span class="tag">消除延迟 / 禁止误操作 / 点击反馈</span>
+    </div>
+    <div class="section-body">
+
+      <h3>7.1 触控行为配置表</h3>
+      <table>
+        <tr><th>行为</th><th>要求</th><th>CSS / JS 方案</th><th>应用范围</th><th>状态</th></tr>
+        <tr>
+          <td>300ms 点击延迟</td>
+          <td>消除</td>
+          <td><code>touch-action: manipulation</code> 全局应用</td>
+          <td><code>body, * { touch-action: manipulation }</code></td>
+          <td><span class="badge badge-todo">待实现</span></td>
+        </tr>
+        <tr>
+          <td>双指缩放</td>
+          <td>禁止</td>
+          <td><code>user-scalable=no</code>（viewport meta 已含）</td>
+          <td>全局（meta viewport）</td>
+          <td><span class="badge badge-done">已完成</span></td>
+        </tr>
+        <tr>
+          <td>页面级上下滑动</td>
+          <td>禁止</td>
+          <td><code>body { overflow: hidden }</code>（已实现）</td>
+          <td>全局</td>
+          <td><span class="badge badge-done">已完成</span></td>
+        </tr>
+        <tr>
+          <td>长按弹出系统菜单</td>
+          <td>禁止（牌面上）</td>
+          <td><code>-webkit-touch-callout: none; user-select: none</code></td>
+          <td><code>.card, .joker-card, .played-card</code></td>
+          <td><span class="badge badge-todo">待实现</span></td>
+        </tr>
+        <tr>
+          <td>iOS overscroll 弹性</td>
+          <td>禁止</td>
+          <td><code>body { overscroll-behavior: none }</code></td>
+          <td><code>body</code></td>
+          <td><span class="badge badge-todo">待实现</span></td>
+        </tr>
+        <tr>
+          <td>系统蓝色点击高亮</td>
+          <td>去除</td>
+          <td><code>-webkit-tap-highlight-color: transparent</code></td>
+          <td><code>*</code> 全局或所有可交互元素</td>
+          <td><span class="badge badge-todo">待实现</span></td>
+        </tr>
+        <tr>
+          <td>卡牌 hover / active 态</td>
+          <td>保留（active 态模拟 hover 效果）</td>
+          <td><code>.card:active { transform: translateY(-6px) }</code></td>
+          <td><code>.card</code></td>
+          <td><span class="badge badge-todo">待实现</span></td>
+        </tr>
+        <tr>
+          <td>滑动手势 / 拖拽手势</td>
+          <td>本轮不引入</td>
+          <td>不做</td>
+          <td>—</td>
+          <td>不在本轮范围</td>
+        </tr>
+      </table>
+
+      <h3>7.2 触控热区示意（缩放后实际大小）</h3>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;margin:16px 0;align-items:flex-start;">
+
+        <div class="touch-demo">
+          <span class="state-label">手牌（缩放后）</span>
+          <div class="touch-hotzone" style="width:51px;height:74px;flex-direction:column;gap:4px;">
+            <div style="font-size:18px;">A♠</div>
+            <div style="font-size:8px;">51×74px</div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px;">原始 100×145px<br>× 0.51 = 51×74px<br>已 > 44pt ✓</div>
+        </div>
+
+        <div class="touch-demo">
+          <span class="state-label">Joker 卡（缩放后）</span>
+          <div class="touch-hotzone" style="width:71px;height:102px;flex-direction:column;gap:4px;">
+            <div style="font-size:24px;">🎭</div>
+            <div style="font-size:8px;">71×102px</div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px;">原始 140×200px<br>× 0.51 = 71×102px<br>已 > 44pt ✓</div>
+        </div>
+
+        <div class="touch-demo">
+          <span class="state-label">操作按钮（原始 CSS）</span>
+          <div style="padding:13px 18px;border-radius:9px;background:linear-gradient(180deg,#34d399,#059669);box-shadow:0 5px 0 #047857;font-size:14px;font-weight:800;color:#fff;cursor:default;">出牌 (3)</div>
+          <div class="touch-hotzone" style="width:100%;min-height:86px;margin-top:8px;flex-direction:column;">
+            <div style="font-size:10px;">触控热区扩展</div>
+            <div style="font-size:9px;">::before 86px 高</div>
+            <div style="font-size:9px;">缩放后 = 44pt ✓</div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px;">原始 52px × 0.51 = 26.5px<br>需 ::before 扩展至 86px</div>
+        </div>
+
+        <div class="touch-demo">
+          <span class="state-label">设置按钮（固定位置）</span>
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(180deg,#fbbf24,#d97706);box-shadow:0 4px 0 #92400e;display:grid;place-items:center;font-size:22px;cursor:default;">⚙️</div>
+          <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px;">建议脱离 scale<br>使用 position: fixed<br>44×44px 已达标 ✓</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §8 字体与 DPI 适配 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">8</div>
+      <h2>字体与 DPI 适配说明</h2>
+      <span class="tag">像素字体 · 多倍屏渲染 · 降级预期</span>
+    </div>
+    <div class="section-body">
+
+      <h3>8.1 字体三类分工（继承第 1 轮规范）</h3>
+      <table>
+        <tr><th>字体</th><th>用途</th><th>移动端表现预期</th><th>降级字体</th></tr>
+        <tr>
+          <td><code>Press Start 2P</code></td>
+          <td>仅纯英文装饰：Logo、JOKERS 段标题、chips/mult 数字块</td>
+          <td>高 DPI（2×/3×）下字体锐利，像素点阵感强。缩放后字号变小（如原 14px × 0.51 ≈ 7px），在 3× 屏仍清晰可辨，在 1.5× 屏可能偏糊</td>
+          <td><code>monospace</code>（无像素风格，但不破坏布局）</td>
+        </tr>
+        <tr>
+          <td><code>VT323</code></td>
+          <td>所有数字大屏：Round Score、金币、Hands/Discards、目标分</td>
+          <td>液晶字感在高 DPI 下更纯粹。缩放后数字仍可辨认（VT323 设计为大字号使用，缩放至约 20px 仍可读）</td>
+          <td><code>monospace</code></td>
+        </tr>
+        <tr>
+          <td><code>Inter + PingFang SC</code></td>
+          <td>所有中文标签、按钮、说明文字</td>
+          <td>系统字体渲染最优，各 DPI 下均清晰。缩放后中文字号约 7px（原 14px × 0.51），接近极限可读边界，但在 3× Retina 上实际物理像素约 21px，仍清晰</td>
+          <td><code>system-ui, sans-serif</code>（中文 fallback 自动使用系统中文字体）</td>
+        </tr>
+      </table>
+
+      <h3>8.2 各平台 DPI 下的字体渲染预期</h3>
+      <table>
+        <tr><th>平台</th><th>DPR</th><th>缩放后 7px 中文的实际物理像素</th><th>可读性</th><th>处理建议</th></tr>
+        <tr>
+          <td><span class="badge badge-ios">iPhone Retina</span></td>
+          <td>3×</td>
+          <td>7 × 3 = 21 物理像素</td>
+          <td>清晰可读</td>
+          <td>无需额外处理</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-ios">iPhone SE（2×）</span></td>
+          <td>2×</td>
+          <td>7 × 2 = 14 物理像素</td>
+          <td>勉强可读（偏小）</td>
+          <td>可适当提高 scale 值至 0.55（667px 设备更宽裕）</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-android">Android xhdpi</span></td>
+          <td>2×</td>
+          <td>7 × 2 = 14 物理像素</td>
+          <td>勉强可读</td>
+          <td>同上，scale 可动态调整</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-android">Android xxhdpi</span></td>
+          <td>3×</td>
+          <td>7 × 3 = 21 物理像素</td>
+          <td>清晰可读</td>
+          <td>无需额外处理</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-android">Android xxxhdpi（旗舰）</span></td>
+          <td>4×</td>
+          <td>7 × 4 = 28 物理像素</td>
+          <td>非常清晰</td>
+          <td>效果最佳</td>
+        </tr>
+      </table>
+
+      <div class="callout">
+        <strong>动态 scale 值建议</strong>
+        <p>工程师实现时，建议根据 viewport 宽度动态计算 scale 值（而非固定 0.51），以适应不同宽度的 Android 设备：</p>
+        <ul>
+          <li>基准设计宽度：1440px</li>
+          <li><code>scale = (viewportWidth - safeLeft - safeRight) / 1440</code></li>
+          <li>最小值 clamp：0.45（避免过小）</li>
+          <li>最大值 clamp：0.70（避免桌面端触发移动端样式后过大）</li>
+        </ul>
+      </div>
+
+      <h3>8.3 字体平滑渲染</h3>
+      <p>在移动端 WebView 中添加以下 CSS 改善字体渲染质量：</p>
+      <div style="background:rgba(0,0,0,.4);border:1px solid rgba(74,107,255,.3);border-radius:6px;padding:14px 18px;margin:8px 0;font-family:monospace;font-size:12px;color:var(--text-dim);line-height:1.8;">
+        <span style="color:#4dd6ff;">@media</span> (max-width: 1024px) and (orientation: landscape) {<br>
+        &nbsp;&nbsp;<span style="color:var(--gold);">*</span> {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--chips-from);">-webkit-font-smoothing</span>: antialiased;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--chips-from);">-moz-osx-font-smoothing</span>: grayscale;<br>
+        &nbsp;&nbsp;}<br>
+        }
+      </div>
+
+      <h3>8.4 离线字体降级预期</h3>
+      <p>若 App 在无网络环境下无法加载 Google Fonts，降级到 <code>monospace / system-ui</code>。视觉影响评估：</p>
+      <ul>
+        <li><strong>Press Start 2P 降级</strong>：像素字体变为普通等宽字体，像素游戏风格弱化，但 Logo 和段标题布局不破坏</li>
+        <li><strong>VT323 降级</strong>：数字显示变为普通等宽字体，液晶数字感消失，但可读性不变</li>
+        <li><strong>Inter 降级</strong>：中文 fallback 到 PingFang SC / Microsoft YaHei（已在 font-family 中声明），几乎无视觉差异</li>
+      </ul>
+      <p>PRD 倾向于在 Tauri 打包时内嵌字体文件，本设计规范不强制要求，由工程师在 Tauri 配置阶段决定。</p>
+    </div>
+  </div>
+
+  <!-- ===== §9 媒体查询断点策略 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">9</div>
+      <h2>媒体查询断点策略</h2>
+      <span class="tag">隔离移动端样式 · PC 版零影响</span>
+    </div>
+    <div class="section-body">
+
+      <h3>9.1 断点定义</h3>
+      <table>
+        <tr><th>断点</th><th>条件</th><th>触发场景</th><th>处理策略</th></tr>
+        <tr>
+          <td>移动端横屏</td>
+          <td><code>@media (max-width: 1024px) and (orientation: landscape)</code></td>
+          <td>iPhone / Android 横屏（780–960px 宽）</td>
+          <td>启用 scale 缩放 + 安全区 padding + 触控优化</td>
+        </tr>
+        <tr>
+          <td>移动端竖屏</td>
+          <td><code>@media (orientation: portrait)</code></td>
+          <td>任何设备竖持</td>
+          <td>显示竖屏挡板，隐藏游戏内容</td>
+        </tr>
+        <tr>
+          <td>桌面端</td>
+          <td>宽度 > 1024px（默认，无 media 条件）</td>
+          <td>PC 浏览器、macOS 应用、Windows 应用</td>
+          <td>PC 版原有样式，不触发任何移动端规则</td>
+        </tr>
+      </table>
+
+      <div class="callout ok">
+        <strong>隔离原则</strong>
+        <p>所有移动端横屏适配样式必须写在 <code>@media (max-width: 1024px) and (orientation: landscape)</code> 块内。PC 版（宽 > 1024px）绝对不触发这些样式，确保 PC 体验零变化。</p>
+      </div>
+
+      <h3>9.2 scale 计算示意（JavaScript 逻辑描述）</h3>
+      <div style="background:rgba(0,0,0,.4);border:1px solid rgba(74,107,255,.3);border-radius:6px;padding:14px 18px;margin:8px 0;font-family:monospace;font-size:12px;color:var(--text-dim);line-height:1.8;">
+        <span style="color:var(--muted);">/* 移动端横屏 scale 动态计算（由工程师决定具体实现方式）*/</span><br>
+        <span style="color:#4dd6ff;">const</span> BASE_WIDTH = <span style="color:var(--gold);">1440</span>; <span style="color:var(--muted);">// 设计基准宽度</span><br>
+        <span style="color:#4dd6ff;">const</span> safeLeft = <span style="color:var(--chips-from);">parseInt</span>(getComputedStyle(document.documentElement)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.getPropertyValue(<span style="color:'#62d18b'">'--safe-left'</span>)) || <span style="color:var(--gold);">0</span>;<br>
+        <span style="color:#4dd6ff;">const</span> availableWidth = window.innerWidth - safeLeft - safeRight;<br>
+        <span style="color:#4dd6ff;">const</span> scale = <span style="color:var(--chips-from);">Math.min</span>(<span style="color:var(--gold);">0.70</span>, <span style="color:var(--chips-from);">Math.max</span>(<span style="color:var(--gold);">0.45</span>, availableWidth / BASE_WIDTH));<br>
+        document.querySelector(<span style="color:'#62d18b'">'#app'</span>).style.setProperty(<span style="color:'#62d18b'">'--scale'</span>, scale);
+      </div>
+
+      <h3>9.3 CSS 媒体查询作用域示意</h3>
+      <div class="wireframe-wrap">
+        <pre>
+  宽度 > 1024px（PC 版） →  原有 CSS 生效 · 移动端规则完全不触发
+  ─────────────────────────────────────────────────────────────────────
+  宽度 ≤ 1024px + 横屏  →  @media(max-width:1024px) and (landscape)
+                              ├── 启用 scale 容器
+                              ├── 安全区 padding（#app 层）
+                              ├── 触控优化（touch-action, overscroll）
+                              └── 按钮 ::before 热区扩展
+
+  宽度 任意 + 竖屏       →  @media(orientation: portrait)
+                              ├── 显示 .portrait-blocker（z-index: 9999）
+                              └── 隐藏 #app 游戏区（display: none）
+        </pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §10 关键交互规范 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">10</div>
+      <h2>关键交互规范</h2>
+      <span class="tag">转场 / 加载 / 空状态 / 错误状态</span>
+    </div>
+    <div class="section-body">
+
+      <h3>10.1 转场处理</h3>
+      <table>
+        <tr><th>场景</th><th>PC 版行为</th><th>移动端横屏处理</th></tr>
+        <tr>
+          <td>出牌动画（GSAP 飞牌）</td>
+          <td>克隆牌 fixed 定位，飞向出牌区中央</td>
+          <td>scale 变换后坐标偏移，工程师需在 GSAP 动画中乘以 scale 因子补偿坐标。设计层不改变，工程层处理</td>
+        </tr>
+        <tr>
+          <td>游戏阶段切换（对局→商店→下一轮）</td>
+          <td>淡入淡出 + 状态切换</td>
+          <td>完全继承 PC 版，scale 容器整体切换，无差异</td>
+        </tr>
+        <tr>
+          <td>竖屏↔横屏切换（Tauri App 内）</td>
+          <td>不适用</td>
+          <td>iOS/Android 系统锁定横屏后，CSS media 不触发 portrait，挡板不出现。若 App 未锁定横屏，切换时挡板出现约 300ms 后游戏重新渲染（可接受）</td>
+        </tr>
+      </table>
+
+      <h3>10.2 加载状态</h3>
+      <ul>
+        <li><strong>字体加载（Google Fonts 网络）</strong>：字体加载期间系统字体兜底显示，布局不错位，FOUT（Flash of Unstyled Text）可接受（游戏是深色背景，字体闪烁不明显）</li>
+        <li><strong>App 冷启动</strong>：目标 ≤ 3 秒到可交互（PRD 非功能需求）。单 HTML 文件资源加载快，主要瓶颈是 Google Fonts。Tauri 打包后若内嵌字体，冷启动更快</li>
+        <li><strong>补牌动画</strong>：GSAP 飞入动画，延迟约 400ms 触发。在移动端若帧率不达 60fps 可接受降至 30fps（PRD 规定）</li>
+      </ul>
+
+      <h3>10.3 空状态</h3>
+      <table>
+        <tr><th>空状态</th><th>现有 PC 版处理</th><th>移动端继承</th></tr>
+        <tr><td>出牌区空态</td><td>"选择手牌组成牌型（1-5 张）" · 14px 半透明白 · 居中</td><td>完全继承，缩放后约 7px，在高 DPI 屏清晰可读</td></tr>
+        <tr><td>Joker 空槽</td><td>虚线蓝边 + "+" 图标 + "空槽" 文字</td><td>完全继承</td></tr>
+        <tr><td>商店空态（无可购 Joker）</td><td>第 1 轮未涉及</td><td>继承</td></tr>
+      </table>
+
+      <h3>10.4 错误状态</h3>
+      <ul>
+        <li><strong>网络断开（Google Fonts 不可用）</strong>：字体降级，游戏逻辑不受影响，玩家可正常游戏</li>
+        <li><strong>触控意外多点</strong>：游戏仅响应单点 tap（点击），多点触控不影响游戏逻辑（Vue 事件不监听多点）</li>
+        <li><strong>动画性能不足</strong>：若 GSAP 检测到帧率异常，可配置为跳过动画直接显示结果状态（PRD 提及 30fps 底线，低于此可降级）</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== §11 设计决策说明 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">11</div>
+      <h2>设计决策说明</h2>
+      <span class="tag">关键选择的理由</span>
+    </div>
+    <div class="section-body">
+
+      <h3>决策 A：等比 scale 缩放，而非响应式重排</h3>
+      <div class="callout gold">
+        <strong>结论</strong>
+        <p><strong>选择 scale 缩放</strong>（transform: scale）而非响应式 CSS 重排（媒体查询重新布局）。</p>
+        <ul>
+          <li><strong>理由 1</strong>：GSAP 出牌动画（飞牌、飞字、Joker 触发粒子）依赖 <code>getBoundingClientRect()</code> 的绝对坐标映射，响应式重排会导致所有动画坐标计算失效，修复成本等于重写整个动画系统</li>
+          <li><strong>理由 2</strong>：游戏布局各元素位置关系强耦合（牌堆 absolute 定位、出牌区尺寸与手牌选中动画幅度耦合），重排破坏这些隐式约束</li>
+          <li><strong>理由 3</strong>：第 1 轮已实现 <code>--scale</code> CSS 变量 + <code>scale()</code> 机制，本方案扩展现有实现，工作量最小</li>
+          <li><strong>代价</strong>：按钮触控热区随 scale 缩小，需要额外的 <code>::before</code> 伪元素扩展（见 §5）。这是可接受的工程代价</li>
+        </ul>
+      </div>
+
+      <h3>决策 B：安全区加在 scale 父级（#app），而非 scale 容器内部</h3>
+      <div class="callout gold">
+        <strong>结论</strong>
+        <p>安全区 padding 加在 <strong>#app（scale 容器的父级）</strong>，而非 .game-wrap（scale 容器本身）。</p>
+        <ul>
+          <li><strong>理由</strong>：若安全区 padding 加在 scale 容器内部，这些 padding 值也会被 scale 压缩。例如 47px 左安全区 × 0.51 ≈ 24px，小于实际刘海宽度（约 47px），内容仍会被遮挡</li>
+          <li><strong>正确做法</strong>：#app 层（不参与 scale）应用安全区，将可用空间的物理边界确定后，再让 scale 容器在这个安全空间内布局</li>
+        </ul>
+      </div>
+
+      <h3>决策 C：设置按钮（⚙️）脱离 scale 容器</h3>
+      <div class="callout gold">
+        <strong>结论</strong>
+        <p>建议将右上角 ⚙️ 设置按钮设为 <code>position: fixed</code>，<strong>脱离 scale 容器</strong>。</p>
+        <ul>
+          <li><strong>理由 1</strong>：脱离 scale 后，设置按钮的触控区域保持原始 44×44px CSS 尺寸，无需 ::before 扩展</li>
+          <li><strong>理由 2</strong>：设置 Modal 本身应覆盖全屏（fixed 定位），设置按钮也是 fixed 更自然</li>
+          <li><strong>理由 3</strong>：第 1 轮规范已定义设置按钮为 <code>position: absolute; top: 16px; right: 16px; z-index: 100</code>，改为 fixed 且加 safe-area-inset-right 是最小改动</li>
+          <li><strong>注意</strong>：fixed 定位在 scale 容器的 transform 上下文中会相对于 viewport，这反而符合需求</li>
+        </ul>
+      </div>
+
+      <h3>决策 D：竖屏挡板不做简化，保留动画</h3>
+      <div class="callout gold">
+        <strong>结论</strong>
+        <p>竖屏挡板<strong>保留 📱 摆动动画</strong>，不因移动端性能顾虑而简化为静态。</p>
+        <ul>
+          <li><strong>理由</strong>：竖屏挡板只是一个纯 CSS keyframe 动画（rotate），CPU 占用极低。竖屏时游戏区已隐藏（display: none），GSAP 动画暂停，整体性能负担反而更低</li>
+          <li><strong>体验价值</strong>：动画提示比静态文字更直观地引导用户"旋转手机"这一操作动作</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §12 待实现清单 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">12</div>
+      <h2>待实现清单（工程师交接）</h2>
+      <span class="tag">优先级排序 · 按 P0/P1 区分</span>
+    </div>
+    <div class="section-body">
+      <table>
+        <tr><th>优先级</th><th>功能</th><th>依据</th><th>关键 CSS/逻辑</th></tr>
+        <tr>
+          <td style="color:#ff5544;font-weight:700;">P0</td>
+          <td>移动端横屏 scale 缩放容器</td>
+          <td>§3 整体布局方案</td>
+          <td><code>@media(max-width:1024px) and (landscape)</code> · scale 动态计算 · transform-origin: top left</td>
+        </tr>
+        <tr>
+          <td style="color:#ff5544;font-weight:700;">P0</td>
+          <td>#app 层安全区 padding</td>
+          <td>§4 安全区适配</td>
+          <td><code>padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)</code></td>
+        </tr>
+        <tr>
+          <td style="color:#ff5544;font-weight:700;">P0</td>
+          <td>手牌区底部安全区保护</td>
+          <td>§4 / §5</td>
+          <td><code>.hand-zone { padding-bottom: max(12px, env(safe-area-inset-bottom)) }</code></td>
+        </tr>
+        <tr>
+          <td style="color:#ff5544;font-weight:700;">P0</td>
+          <td>操作按钮触控热区扩展（::before）</td>
+          <td>§5.2 / §5.3</td>
+          <td><code>.action-row .px-btn::before { content:''; position:absolute; top:-17px; bottom:-17px; left:0; right:0; }</code></td>
+        </tr>
+        <tr>
+          <td style="color:#ff5544;font-weight:700;">P0</td>
+          <td>消除 300ms 点击延迟</td>
+          <td>§7.1</td>
+          <td><code>* { touch-action: manipulation }</code></td>
+        </tr>
+        <tr>
+          <td style="color:#ff5544;font-weight:700;">P0</td>
+          <td>禁止长按系统菜单（牌面）</td>
+          <td>§7.1</td>
+          <td><code>.card, .joker-card { -webkit-touch-callout: none; user-select: none }</code></td>
+        </tr>
+        <tr>
+          <td style="color:#ff5544;font-weight:700;">P0</td>
+          <td>禁止 iOS overscroll 弹性</td>
+          <td>§7.1</td>
+          <td><code>body { overscroll-behavior: none }</code></td>
+        </tr>
+        <tr>
+          <td style="color:#ff5544;font-weight:700;">P0</td>
+          <td>去除系统蓝色点击高亮</td>
+          <td>§7.1</td>
+          <td><code>* { -webkit-tap-highlight-color: transparent }</code></td>
+        </tr>
+        <tr>
+          <td style="color:#ffc857;font-weight:700;">P1</td>
+          <td>卡牌 active 态（模拟 hover）</td>
+          <td>§7.1</td>
+          <td><code>.card:active { transform: translateY(-6px) }</code></td>
+        </tr>
+        <tr>
+          <td style="color:#ffc857;font-weight:700;">P1</td>
+          <td>设置按钮改为 fixed 定位脱离 scale</td>
+          <td>§11 决策 C</td>
+          <td><code>.settings-btn { position: fixed; top: max(16px, env(safe-area-inset-top)); right: max(16px, env(safe-area-inset-right)) }</code></td>
+        </tr>
+        <tr>
+          <td style="color:#ffc857;font-weight:700;">P1</td>
+          <td>字体平滑渲染</td>
+          <td>§8.3</td>
+          <td><code>* { -webkit-font-smoothing: antialiased }</code></td>
+        </tr>
+        <tr>
+          <td style="color:#62d18b;font-weight:700;">P2（已完成）</td>
+          <td>竖屏挡板（📱 摆动 + 文案）</td>
+          <td>§6</td>
+          <td>第 1 轮已完成，本轮确认规范锁定</td>
+        </tr>
+        <tr>
+          <td style="color:#62d18b;font-weight:700;">P2（已完成）</td>
+          <td>viewport meta · viewport-fit=cover</td>
+          <td>§4.3</td>
+          <td>index.html 中已配置，确认保留</td>
+        </tr>
+        <tr>
+          <td style="color:#62d18b;font-weight:700;">P2（已完成）</td>
+          <td>overflow: hidden 禁止页面滚动</td>
+          <td>§7.1</td>
+          <td>第 1 轮已完成</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 总结 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">∑</div>
+      <h2>设计总结</h2>
+      <span class="tag">气质定位 · 主色选择 · 关键组件决策</span>
+    </div>
+    <div class="section-body">
+      <div class="summary-card">
+        <h3>一段话总结</h3>
+        <p>
+          本设计稿以<strong>克制、沉浸、精准</strong>为气质定调，延续第 1 轮的深蓝水纹 Balatro 官方风格（主色 <code style="color:var(--chips-from);">#4a6bff</code> 蓝 + <code style="color:var(--gold);">#ffc857</code> 金），采用<strong>等比 scale 缩放（0.51）</strong>而非响应式重排作为核心布局策略。
+          主色选择理由：蓝色贯穿整个 Balatro 品牌识别（Joker 区边框、sidebar 渐变、chips 水彩块），金色是游戏内核心反馈色（金币、目标分、通关奖励），两者在深色背景上对比度强、辨识度高，移动端小尺寸下仍清晰可见。
+        </p>
+        <ul>
+          <li><strong>关键决策 1：scale 缩放容器</strong>——在 PC 版 HTML 结构不变的前提下，用 <code>transform: scale(0.51)</code> 整体压缩至移动端横屏视口，零改动地保留所有 GSAP 动画和元素位置关系，是本次适配最核心的架构选择</li>
+          <li><strong>关键决策 2：安全区在 scale 父级处理</strong>——安全区 padding 必须加在 scale 容器的父级（<code>#app</code>），而非 scale 容器内部，否则安全区值也会被 scale 压缩，导致刘海遮挡内容的根本性问题</li>
+          <li><strong>关键决策 3：按钮触控热区 ::before 扩展</strong>——scale 缩放导致按钮实际触控面积随之缩小，通过 CSS <code>::before</code> 伪元素将触控热区还原至 44pt/dp 最小规格（原始 CSS 约 86px ÷ scale 0.51 ≈ 44pt），在不改变视觉的前提下满足移动端触控规范</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;color:var(--muted);font-size:12px;padding:32px 0 48px;border-top:1px solid rgba(74,107,255,.2);margin-top:0;">
+  小丑牌教学 · B2 · 第 2 轮 DESIGN · 移动端横屏适配规范 v1<br>
+  <span style="color:rgba(255,255,255,.15);font-size:11px;margin-top:4px;display:block;">设计规范文档，描述「视觉和交互设计意图」，不包含实现代码。工程实施由全栈工程师决定具体方案。</span>
+</div>
+
+</body>
+</html>
